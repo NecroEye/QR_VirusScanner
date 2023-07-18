@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/pink"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:text="qr Storage"
+            android:layout_width="150dp"
+            android:layout_height="70dp"
+            android:gravity="center"
+            tools:ignore="MissingConstraints" />
+
+        <Button
+            android:id="@+id/pickQRfromGallery"
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:text="Barkod Seç"
+            android:layout_marginStart="140dp"
+            android:layout_marginTop="300dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</FrameLayout>

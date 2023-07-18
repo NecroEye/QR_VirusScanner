@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/qrReader"
+        android:title="@string/barkod_okuyucu"
+        android:icon="@drawable/baseline_qr_code_scanner_24" />
+
+    <item android:id="@+id/qrDocReader"
+        android:title="@string/resim_okuyucu"
+        android:icon="@drawable/baseline_document_scanner_24"/>
+
+    <item android:id="@+id/qrList"
+        android:title="@string/barkod_listem"
+        android:icon="@drawable/baseline_view_list_24" />
+
+</menu>
