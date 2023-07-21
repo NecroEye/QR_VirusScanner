@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@color/pink"
@@ -12,11 +13,27 @@
         android:orientation="vertical">
 
 
+
+
+        <ImageView
+            android:id="@+id/pickedBarkod"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:maxHeight="150dp"
+            android:layout_marginTop="100dp"
+            app:srcCompat="@android:drawable/ic_menu_gallery" />
+
         <TextView
-            android:text="qr Storage"
-            android:layout_width="150dp"
-            android:layout_height="70dp"
+            android:id="@+id/informationText"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:layout_marginTop="25dp"
             android:gravity="center"
+            android:scrollbars="vertical"
             tools:ignore="MissingConstraints" />
 
         <Button
@@ -24,9 +41,18 @@
             android:layout_width="140dp"
             android:layout_height="50dp"
             android:text="Barkod Seç"
-            android:layout_marginStart="140dp"
-            android:layout_marginTop="300dp"
+            android:layout_marginStart="130dp"
+            android:layout_marginTop="50dp"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/Scan"
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:visibility="invisible"
+            android:layout_marginStart="130dp"
+            android:text="Tara"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 </FrameLayout>
