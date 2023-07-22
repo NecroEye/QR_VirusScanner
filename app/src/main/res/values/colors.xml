@@ -5,4 +5,11 @@
     <color name="pink">#ff80ed</color>
     <color name="lightRed">#c52a41</color>
     <color name="lightGreen">#4dff4d</color>
+    <color name="colorSuccess">#4BB543</color>
+    <color name="colorWarning">#FFCC00</color>
+    <color name="colorError">#CC0000</color>
+    <color name="colorNeutral">#434343</color>
+    <color name="colorAccent">#03DAC5</color>
+
+
 </resources>

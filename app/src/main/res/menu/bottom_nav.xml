@@ -8,7 +8,7 @@
 
     <item android:id="@+id/qrDocReader"
         android:title="@string/resim_okuyucu"
-        android:icon="@drawable/baseline_document_scanner_24"/>
+        android:icon="@drawable/barcoderead"/>
 
     <item android:id="@+id/qrList"
         android:title="@string/barkod_listem"

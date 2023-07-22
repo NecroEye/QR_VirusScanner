@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">QR Reader</string>
+    <string name="app_name">Güvenli QR &amp; Barkod Okuyucu </string>
     <string name="barkod_okuyucu">Barkod Okuyucu</string>
     <string name="resim_okuyucu">Resim Okuyucu</string>
     <string name="barkod_listem">Barkod Listem</string>

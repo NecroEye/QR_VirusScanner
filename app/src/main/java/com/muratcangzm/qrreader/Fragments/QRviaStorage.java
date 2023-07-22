@@ -218,6 +218,23 @@ public class QRviaStorage extends Fragment {
                 }
                 break;
 
+                case Barcode.TYPE_GEO:{
+
+                    Barcode.GeoPoint geoPoint = barcode.getGeoPoint();
+
+                    Double geoLat = geoPoint.getLat();
+                    Double geoLng = geoPoint.getLng();
+
+                    Log.d("Result: " , "Type: Geo");
+                    Log.d("Result: " , "Type: geoLat" + geoLat);
+                    Log.d("Result: " , "Type: geoLng" + geoLng);
+
+
+                    binding.informationText.setText("Türü: Koordinat \n Latitude: " + geoLat  + "\nLongitude: " + geoLng +
+                            "\nSaf değeri: " + rawValue);
+
+                }
+
                 default:{
                     binding.informationText.setText("Saf Değeri: " + rawValue);
                 }

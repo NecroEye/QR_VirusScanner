@@ -10,20 +10,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <TextView
-        android:text="qr Camera"
-        android:layout_width="150dp"
-        android:layout_height="70dp"
-        android:gravity="center"
-        tools:ignore="MissingConstraints" />
+
 
     <Button
         android:id="@+id/scanQR"
         android:layout_width="140dp"
         android:layout_height="50dp"
         android:text="Barkod Oku"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="300dp"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="400dp"
         android:textStyle="bold" />
 
 </LinearLayout>
