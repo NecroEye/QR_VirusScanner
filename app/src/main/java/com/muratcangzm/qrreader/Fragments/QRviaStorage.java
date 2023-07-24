@@ -71,7 +71,7 @@ public class QRviaStorage extends Fragment {
                 .build();
 
 
-        binding.informationText.setMovementMethod(new ScrollingMovementMethod());
+        binding.rawTypeResult.setMovementMethod(new ScrollingMovementMethod());
 
 
         barcodeScanner = BarcodeScanning.getClient(scannerOptions);
@@ -158,8 +158,6 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "password: " + password);
                     Log.d("Result: ", "encryptionType: " + encryptionType);
 
-                    binding.informationText.setText("Türü: WIFI \nssid: " + ssid + "\nŞifre: " + password +
-                            "\nŞifreleme Türü: " + encryptionType + "\nSaf Değeri: " + rawValue);
 
 
                 }
@@ -176,10 +174,12 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "title: " + title);
                     Log.d("Result: ", "url: " + url);
 
-                    binding.informationText.setText("Türü: URL \nBaşlık: " + title + "\nURL: " + url + "\nSaf Değeri: " + rawValue);
-                    binding.time.setText(getTime());
 
+                    binding.rawTypeResult.setText("URL");
+                    binding.rawTypeResult.setText(url);
                     binding.saveList.setVisibility(View.VISIBLE);
+
+
                 }
                 break;
 
@@ -195,8 +195,7 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Address: " + address);
                     Log.d("Result: ", "subject: " + subject);
 
-                    binding.informationText.setText("Türü: E-Posta \nE-Posta Adresi: " + address + "\nGövdesi: " + body +
-                            "\nKonu: " + subject + "\nSaf Değeri: " + rawValue);
+
 
                     binding.saveList.setVisibility(View.INVISIBLE);
 
@@ -219,8 +218,8 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: name" + name);
                     Log.d("Result: ", "Type: phone" + phone);
 
-                    binding.informationText.setText("Türü: İletişim Bilgisi \nBaşlık: " + title + "\nDüzenleyici: " + organizer +
-                            "\nİsmi: " + name + "\nTelefon: " + phone + "\nSaf Değeri: " + rawValue);
+                  //  binding.informationText.setText("Türü: İletişim Bilgisi \nBaşlık: " + title + "\nDüzenleyici: " + organizer +
+                    //        "\nİsmi: " + name + "\nTelefon: " + phone + "\nSaf Değeri: " + rawValue);
 
                     binding.saveList.setVisibility(View.INVISIBLE);
 
@@ -240,15 +239,15 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: geoLng" + geoLng);
 
 
-                    binding.informationText.setText("Türü: Koordinat \n Latitude: " + geoLat + "\nLongitude: " + geoLng +
-                            "\nSaf değeri: " + rawValue);
+
 
                 }
 
                 default: {
-                    binding.informationText.setText("Saf Değeri: " + rawValue);
+                    binding.rawTypeResult.setText("Ürün değeri");
+                    binding.rawTypeResult.setText(rawValue);
                     binding.saveList.setVisibility(View.VISIBLE);
-                    binding.time.setText(getTime());
+
                 }
 
             }

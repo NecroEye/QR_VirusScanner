@@ -10,6 +10,7 @@
     <color name="colorError">#CC0000</color>
     <color name="colorNeutral">#434343</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorBlue">#2775fc</color>
 
 
 </resources>
