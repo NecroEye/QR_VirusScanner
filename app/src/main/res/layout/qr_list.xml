@@ -2,19 +2,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/lightRed"
+    android:background="#FFFFFF"
     xmlns:tools="http://schemas.android.com/tools">
 
 
-    <TextView
-        android:text="Yakında Eklenecek"
-        android:layout_width="150dp"
-        android:layout_height="70dp"
-        android:gravity="center"
-        android:textColor="@color/black"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        tools:ignore="MissingConstraints" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
 
 </FrameLayout>

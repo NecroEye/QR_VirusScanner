@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +41,11 @@ import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 import com.muratcangzm.qrreader.databinding.QrStorageBinding;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class QRviaStorage extends Fragment {
 
@@ -65,6 +70,7 @@ public class QRviaStorage extends Fragment {
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build();
 
+
         binding.informationText.setMovementMethod(new ScrollingMovementMethod());
 
 
@@ -74,15 +80,13 @@ public class QRviaStorage extends Fragment {
 
             if (!checkSelfPermission()) {
                 requestStoragePermission();
-            }
-            else{
+            } else {
                 pickImageGallery();
             }
         });
 
 
-
-        binding.Scan.setOnClickListener(v ->{
+        binding.Scan.setOnClickListener(v -> {
 
             detectResultFromImage();
 
@@ -97,7 +101,7 @@ public class QRviaStorage extends Fragment {
 
         try {
 
-            InputImage inputImage = InputImage.fromFilePath(requireContext(),imageUri);
+            InputImage inputImage = InputImage.fromFilePath(requireContext(), imageUri);
 
             Task<List<Barcode>> barcodeResult = barcodeScanner.process(inputImage)
                     .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
@@ -105,8 +109,8 @@ public class QRviaStorage extends Fragment {
                         public void onSuccess(List<Barcode> barcodes) {
 
 
-                           extractBarcodeQRCodeInfo(barcodes);
-                           
+                            extractBarcodeQRCodeInfo(barcodes);
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -117,10 +121,9 @@ public class QRviaStorage extends Fragment {
                         }
                     });
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.getStackTrace();
-            Log.e("Error on StorageFragment: " , e.getMessage());
+            Log.e("Error on StorageFragment: ", e.getMessage());
         }
 
     }
@@ -128,22 +131,21 @@ public class QRviaStorage extends Fragment {
     @SuppressLint("SetTextI18n")
     private void extractBarcodeQRCodeInfo(List<Barcode> barcodes) {
 
-        for(Barcode barcode: barcodes){
+        for (Barcode barcode : barcodes) {
 
             Rect bounds = barcode.getBoundingBox();
             Point[] corners = barcode.getCornerPoints();
 
 
             String rawValue = barcode.getRawValue();
-            Log.d("ExtractBarCodeInfo: " , "Raw Value: " + rawValue);
+            Log.d("ExtractBarCodeInfo: ", "Raw Value: " + rawValue);
 
             int ValueType = barcode.getValueType();
 
 
+            switch (ValueType) {
 
-            switch (ValueType){
-
-                case Barcode.TYPE_WIFI:{
+                case Barcode.TYPE_WIFI: {
 
                     Barcode.WiFi typeWifi = barcode.getWifi();
 
@@ -152,91 +154,101 @@ public class QRviaStorage extends Fragment {
                     String encryptionType = "" + typeWifi.getEncryptionType();
 
                     //Log da görüntüleme
-                    Log.d("Result: " , "ssid: " + ssid);
-                    Log.d("Result: " , "password: " + password);
-                    Log.d("Result: " , "encryptionType: " + encryptionType);
+                    Log.d("Result: ", "ssid: " + ssid);
+                    Log.d("Result: ", "password: " + password);
+                    Log.d("Result: ", "encryptionType: " + encryptionType);
 
                     binding.informationText.setText("Türü: WIFI \nssid: " + ssid + "\nŞifre: " + password +
                             "\nŞifreleme Türü: " + encryptionType + "\nSaf Değeri: " + rawValue);
 
+
                 }
                 break;
 
-                case Barcode.TYPE_URL:{
+                case Barcode.TYPE_URL: {
 
                     Barcode.UrlBookmark type_url = barcode.getUrl();
 
-                    String title = ""+ type_url.getTitle();
-                    String url = ""+type_url.getUrl();
+                    String title = "" + type_url.getTitle();
+                    String url = "" + type_url.getUrl();
 
-                    Log.d("Result: " , "Type: URL");
-                    Log.d("Result: " , "title: " + title);
-                    Log.d("Result: " , "url: " + url);
+                    Log.d("Result: ", "Type: URL");
+                    Log.d("Result: ", "title: " + title);
+                    Log.d("Result: ", "url: " + url);
 
                     binding.informationText.setText("Türü: URL \nBaşlık: " + title + "\nURL: " + url + "\nSaf Değeri: " + rawValue);
+                    binding.time.setText(getTime());
 
+                    binding.saveList.setVisibility(View.VISIBLE);
                 }
                 break;
 
-                case Barcode.TYPE_EMAIL:{
+                case Barcode.TYPE_EMAIL: {
 
                     Barcode.Email email = barcode.getEmail();
 
-                    String address = ""+ email.getAddress();
-                    String body = ""+ email.getBody();
-                    String subject = ""+ email.getSubject();
+                    String address = "" + email.getAddress();
+                    String body = "" + email.getBody();
+                    String subject = "" + email.getSubject();
 
-                    Log.d("Result: " , "Type: E-mail");
-                    Log.d("Result: " , "Address: " + address);
-                    Log.d("Result: " , "subject: " + subject);
+                    Log.d("Result: ", "Type: E-mail");
+                    Log.d("Result: ", "Address: " + address);
+                    Log.d("Result: ", "subject: " + subject);
 
                     binding.informationText.setText("Türü: E-Posta \nE-Posta Adresi: " + address + "\nGövdesi: " + body +
                             "\nKonu: " + subject + "\nSaf Değeri: " + rawValue);
 
+                    binding.saveList.setVisibility(View.INVISIBLE);
+
+
                 }
                 break;
 
-                case Barcode.TYPE_CONTACT_INFO:{
+                case Barcode.TYPE_CONTACT_INFO: {
 
                     Barcode.ContactInfo contactInfo = barcode.getContactInfo();
 
-                    String title = ""+contactInfo.getTitle();
-                    String organizer =""+contactInfo.getOrganization();
-                    String name = ""+ contactInfo.getName().getFirst() + " " + contactInfo.getName().getLast();
-                    String phone = ""+ contactInfo.getPhones().get(0).getNumber();
+                    String title = "" + contactInfo.getTitle();
+                    String organizer = "" + contactInfo.getOrganization();
+                    String name = "" + contactInfo.getName().getFirst() + " " + contactInfo.getName().getLast();
+                    String phone = "" + contactInfo.getPhones().get(0).getNumber();
 
-                    Log.d("Result: " , "Type: Contact-Info");
-                    Log.d("Result: " , "Type: title" + title);
-                    Log.d("Result: " , "Type: organizer" + organizer);
-                    Log.d("Result: " , "Type: name" + name);
-                    Log.d("Result: " , "Type: phone" + phone);
+                    Log.d("Result: ", "Type: Contact-Info");
+                    Log.d("Result: ", "Type: title" + title);
+                    Log.d("Result: ", "Type: organizer" + organizer);
+                    Log.d("Result: ", "Type: name" + name);
+                    Log.d("Result: ", "Type: phone" + phone);
 
                     binding.informationText.setText("Türü: İletişim Bilgisi \nBaşlık: " + title + "\nDüzenleyici: " + organizer +
                             "\nİsmi: " + name + "\nTelefon: " + phone + "\nSaf Değeri: " + rawValue);
 
+                    binding.saveList.setVisibility(View.INVISIBLE);
+
 
                 }
                 break;
 
-                case Barcode.TYPE_GEO:{
+                case Barcode.TYPE_GEO: {
 
                     Barcode.GeoPoint geoPoint = barcode.getGeoPoint();
 
                     Double geoLat = geoPoint.getLat();
                     Double geoLng = geoPoint.getLng();
 
-                    Log.d("Result: " , "Type: Geo");
-                    Log.d("Result: " , "Type: geoLat" + geoLat);
-                    Log.d("Result: " , "Type: geoLng" + geoLng);
+                    Log.d("Result: ", "Type: Geo");
+                    Log.d("Result: ", "Type: geoLat" + geoLat);
+                    Log.d("Result: ", "Type: geoLng" + geoLng);
 
 
-                    binding.informationText.setText("Türü: Koordinat \n Latitude: " + geoLat  + "\nLongitude: " + geoLng +
+                    binding.informationText.setText("Türü: Koordinat \n Latitude: " + geoLat + "\nLongitude: " + geoLng +
                             "\nSaf değeri: " + rawValue);
 
                 }
 
-                default:{
+                default: {
                     binding.informationText.setText("Saf Değeri: " + rawValue);
+                    binding.saveList.setVisibility(View.VISIBLE);
+                    binding.time.setText(getTime());
                 }
 
             }
@@ -257,7 +269,7 @@ public class QRviaStorage extends Fragment {
                 @Override
                 public void onActivityResult(ActivityResult result) {
 
-                    if(result.getResultCode() == Activity.RESULT_OK){
+                    if (result.getResultCode() == Activity.RESULT_OK) {
 
 
                         Intent data = result.getData();
@@ -265,16 +277,14 @@ public class QRviaStorage extends Fragment {
                         Log.d("StorageFragment: ", "ActivityResult: " + imageUri);
                         binding.pickedBarkod.setImageURI(imageUri);
 
-                        if(imageUri != null){
+                        if (imageUri != null) {
                             binding.Scan.setVisibility(View.VISIBLE);
-                        }
-                        else{
+                        } else {
                             binding.Scan.setVisibility(View.INVISIBLE);
                         }
 
-                    }
-                    else{
-                        Snackbar.make(binding.pickQRfromGallery,"İşlem iptal edildi",Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Snackbar.make(binding.pickQRfromGallery, "İşlem iptal edildi", Snackbar.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -332,7 +342,7 @@ public class QRviaStorage extends Fragment {
 
     }
 
-    private void pickImageGallery(){
+    private void pickImageGallery() {
 
 
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -341,6 +351,21 @@ public class QRviaStorage extends Fragment {
 
     }
 
+    private String getTime() {
+
+        Calendar calendar = Calendar.getInstance();
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+
+        String currentTimeString = String.format("%02d:%02d", hour, minute);
+
+        return currentTimeString + " " + day + "/" + month + "/" + year;
+    }
 
 
 }
