@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -29,6 +30,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +42,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
+import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrStorageBinding;
 
 import java.text.SimpleDateFormat;
@@ -50,6 +54,8 @@ import java.util.Locale;
 public class QRviaStorage extends Fragment {
 
     private static final int STORAGE_REQUEST_CODE = 101;
+
+    private String rawVal, Type = null;
 
     private QrStorageBinding binding;
     private Uri imageUri = null;
@@ -66,6 +72,7 @@ public class QRviaStorage extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrStorageBinding.inflate(getLayoutInflater(), container, false);
 
+
         scannerOptions = new BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build();
@@ -73,6 +80,19 @@ public class QRviaStorage extends Fragment {
 
         binding.rawTypeResult.setMovementMethod(new ScrollingMovementMethod());
 
+
+        binding.saveList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (rawVal != null && Type != null) {
+
+                    sendThreeData(Type, rawVal, getTime());
+
+                }
+
+            }
+        });
 
         barcodeScanner = BarcodeScanning.getClient(scannerOptions);
 
@@ -88,7 +108,9 @@ public class QRviaStorage extends Fragment {
 
         binding.Scan.setOnClickListener(v -> {
 
+
             detectResultFromImage();
+
 
         });
 
@@ -159,7 +181,6 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "encryptionType: " + encryptionType);
 
 
-
                 }
                 break;
 
@@ -175,9 +196,12 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "url: " + url);
 
 
-                    binding.rawTypeResult.setText("URL");
+                    binding.typeTextResult.setText("URL");
                     binding.rawTypeResult.setText(url);
                     binding.saveList.setVisibility(View.VISIBLE);
+
+                    Type = "URL";
+                    rawVal = url;
 
 
                 }
@@ -194,7 +218,6 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: E-mail");
                     Log.d("Result: ", "Address: " + address);
                     Log.d("Result: ", "subject: " + subject);
-
 
 
                     binding.saveList.setVisibility(View.INVISIBLE);
@@ -218,7 +241,7 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: name" + name);
                     Log.d("Result: ", "Type: phone" + phone);
 
-                  //  binding.informationText.setText("Türü: İletişim Bilgisi \nBaşlık: " + title + "\nDüzenleyici: " + organizer +
+                    //  binding.informationText.setText("Türü: İletişim Bilgisi \nBaşlık: " + title + "\nDüzenleyici: " + organizer +
                     //        "\nİsmi: " + name + "\nTelefon: " + phone + "\nSaf Değeri: " + rawValue);
 
                     binding.saveList.setVisibility(View.INVISIBLE);
@@ -239,14 +262,16 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: geoLng" + geoLng);
 
 
-
-
                 }
 
                 default: {
-                    binding.rawTypeResult.setText("Ürün değeri");
+                    binding.typeTextResult.setText("Ürün değeri");
                     binding.rawTypeResult.setText(rawValue);
                     binding.saveList.setVisibility(View.VISIBLE);
+
+
+                    Type = "Ürün";
+                    rawVal = rawValue;
 
                 }
 
@@ -364,6 +389,30 @@ public class QRviaStorage extends Fragment {
         String currentTimeString = String.format("%02d:%02d", hour, minute);
 
         return currentTimeString + " " + day + "/" + month + "/" + year;
+    }
+
+    private void sendThreeData(final String type, final String rawValue, final String time) {
+
+        QRList fragmentList = new QRList();
+
+        Bundle bundle = new Bundle();
+
+        bundle.putString("KEY_TYPE", type);
+        bundle.putString("KEY_RAW", rawValue);
+        bundle.putString("KEY_TIME", time);
+
+        fragmentList.setArguments(bundle);
+
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.Fragment_container, fragmentList);
+        fragmentTransaction.addToBackStack(null);
+
+        fragmentTransaction.commit();
+
+        Snackbar.make(binding.saveList,"Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
+
     }
 
 

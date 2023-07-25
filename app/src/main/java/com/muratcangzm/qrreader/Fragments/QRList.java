@@ -38,7 +38,26 @@ public class QRList extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrListBinding.inflate(getLayoutInflater(), container,false);
 
-        initData();
+        Bundle bundle = getArguments();
+
+        if(bundle != null){
+
+            String type = bundle.getString("KEY_TYPE");
+            String raw = bundle.getString("KEY_RAW");
+            String time = bundle.getString("KEY_TIME");
+
+            initData(type, raw, time);
+
+        }
+        else{
+
+            barcodeModel = new ArrayList<>();
+            barcodeModel.add(new RecyclerModel(R.drawable.link, "URL", "www.google.com", "Güvenli", "unknown", null));
+
+        }
+
+
+
         initRecyclerView();
 
         return binding.getRoot();
@@ -51,14 +70,32 @@ public class QRList extends Fragment {
     }
 
 
-    private void initData() {
-
+    private void initData(final String type, final String raw, final String time) {
 
         barcodeModel = new ArrayList<>();
 
-        barcodeModel.add(new RecyclerModel(R.drawable.link,"URL","www.google.com","Güvenli", "22:10",null));
-        barcodeModel.add(new RecyclerModel(R.drawable.product,"Product","1234312341","Güvenli", "22:10",null));
-        barcodeModel.add(new RecyclerModel(R.drawable.documents,"Saf Değeri","gDx1?ic,","", "22:10",null));
+
+        switch (type){
+
+            case "URL":{
+
+                barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, "unknown", time, null));
+
+            }
+            break;
+
+            case "Ürün":{
+
+                barcodeModel.add(new RecyclerModel(R.drawable.product, type, raw, "", time, null));
+
+            }
+            break;
+        }
+
+
+
+
+
 
     }
 
