@@ -37,7 +37,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -48,11 +52,21 @@ import com.muratcangzm.qrreader.Model.VirusTotalModel;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrCameraBinding;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Objects;
 
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -64,6 +78,10 @@ public class QRviaCamera extends Fragment {
     private String rawVal, Type = null;
     private QrCameraBinding binding;
 
+    private static boolean checkingUrl;
+    private static String checkId;
+    private static HashMap<String, Objects> checkResult;
+
     public QRviaCamera() {
         //Empty Constructor
     }
@@ -72,6 +90,7 @@ public class QRviaCamera extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrCameraBinding.inflate(getLayoutInflater(), container, false);
+
 
 
         binding.scanQR.setOnClickListener(view -> {
@@ -239,7 +258,7 @@ public class QRviaCamera extends Fragment {
 
                     ClipData clipData = ClipData.newPlainText("Veri", result.getContents());
                     clipboardManager.setPrimaryClip(clipData);
-                    Snackbar.make(binding.scanQR,"Kopyalandı", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(binding.scanQR, "Kopyalandı", Snackbar.LENGTH_SHORT).show();
 
                 }
             });
@@ -248,8 +267,9 @@ public class QRviaCamera extends Fragment {
                 @Override
                 public void onClick(View v) {
 
-                    scanUrl(result.getContents());
                     // it will empty until virustotal api is ready
+                    checkUrl(result.getContents());
+                    basicGet();
                 }
             });
 
@@ -329,51 +349,138 @@ public class QRviaCamera extends Fragment {
         Snackbar.make(binding.scanQR, "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
     }
 
+    public static void basicGet() {
 
-    public static void scanUrl(String url){
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://www.virustotal.com/api/v3/")
-                .addConverterFactory(GsonConverterFactory.create())
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("https://icanhazip.com")
                 .build();
 
-        VirusTotalApiService virusTotalApiService = retrofit.create(VirusTotalApiService.class);
-
-
-        ScanRequest scanRequest = new ScanRequest(url);
-        Log.d("Sonuç:", "ilk bölüm");
-
-        Call<VirusTotalModel> call = virusTotalApiService.scanUrl(scanRequest);
-        call.enqueue(new Callback<VirusTotalModel>() {
+        client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
-            public void onResponse(Call<VirusTotalModel> call, Response<VirusTotalModel> response) {
-
-                if(response.isSuccessful()){
-
-                    Log.d("Sonuç:", "ikinci bölüm");
-
-                    VirusTotalModel virusTotalModel = response.body();
-
-                    if(virusTotalModel != null){
-
-                     String scanId = virusTotalModel.getScanId();
-                     Log.d("Sonuç:", scanId);
-
-                    }
-                }
-
+            public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
+                Log.d("parazit2", e.getMessage());
             }
 
             @Override
-            public void onFailure(Call<VirusTotalModel> call, Throwable t) {
+            public void onResponse(@NonNull okhttp3.Call call, @NonNull Response response) throws IOException {
+                // Handle successful response
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    // Do something with the response body
+                    Log.d("parazit", "" +responseBody);
+                }
+            }
+        });
+    }
 
 
-                Log.d("Hata", "Sorun: " + t.getMessage(), t);
+    public static void urlAnalysisFromId(String id) {
 
+        id = id.split("-")[1];
+        Log.d("Url anaylsisID", "id " + id);
+        OkHttpClient client = new OkHttpClient();
+
+        // Replace the API key and URL with your own values
+        String apiKey = "ca51b3756aa20f7f99d75d3ffe38c1d43bd9ee1bab90c72ff597ccf6df317c9c";
+        String url = "https://www.virustotal.com/api/v3/urls/" + id;
+
+        // Create the GET request and add headers
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("x-apikey", apiKey)
+                .build();
+
+        // Send the request asynchronously and process the response
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) {
+                try (ResponseBody responseBody = response.body()) {
+                    if (response.isSuccessful()) {
+                        String responseBodyString = responseBody.string();
+                        checkingUrl = false; //
+                        JsonObject json = new JsonParser().parse(responseBodyString).getAsJsonObject();
+                        JsonObject totalVotes = json.get("data").getAsJsonObject().get("attributes").getAsJsonObject().get("last_analysis_stats").getAsJsonObject();
+                        final int harmless = totalVotes.get("harmless").getAsInt();
+                        final int malicious = totalVotes.get("malicious").getAsInt();
+                        final int suspicious = totalVotes.get("suspicious").getAsInt();
+                        final int Reputation = json.get("data").getAsJsonObject().get("attributes").getAsJsonObject().get("reputation").getAsInt();
+
+
+                        Log.d("gayshit", String.format("Good %s, Bad %s, Suspicious %s, Reputation %s", harmless, malicious, suspicious, Reputation));
+
+                        Log.d("parazitnotdead","Response Body: " + responseBodyString);
+                    } else {
+                        Log.d("parazit_revamped", "Error: " + response.code() + " " + response.message());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // Close the client after processing the response
+                    client.dispatcher().executorService().shutdown();
+                }
+            }
+
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                e.printStackTrace();
+                // Close the client in case of failure
+                client.dispatcher().executorService().shutdown();
             }
         });
 
     }
 
+
+
+    public static void checkUrl(String url) {
+
+        checkingUrl = true;
+        OkHttpClient client = new OkHttpClient();
+
+        // Replace the API key and URL with your own values
+        String apiKey = "ca51b3756aa20f7f99d75d3ffe38c1d43bd9ee1bab90c72ff597ccf6df317c9c";
+        String url1 = "https://www.virustotal.com/api/v3/urls"; // buda olmazsa akşama virustotalin evine bi  bayram ziyareti gerçeklei try brother: D:DD
+
+        // Set the request body as a form encoded string try :D try :D  ne anlamadim
+
+        // Create the request body
+        RequestBody requestBody = new FormBody.Builder()
+                .add("url", url).build();
+        // Create the POST request and add headers
+        Request request = new Request.Builder()
+                .url(url1) // has :DDDDDDDDDDD try it.
+                .post(requestBody)
+                .addHeader("accept", "application/json")
+                .addHeader("x-apikey", apiKey)
+                .build();
+
+        // Send the request and process the response asynchronously try brotheR: hassssssss
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) {
+                try (ResponseBody responseBody = response.body()) {
+                    if (response.isSuccessful()) {
+                        String responseBodyString = responseBody.string();
+                        JsonObject json = new JsonParser().parse(responseBodyString).getAsJsonObject();
+                        Log.d("parazit3", ""+ responseBodyString);
+                        checkId = json.get("data").getAsJsonObject().get("id").getAsString();
+                        urlAnalysisFromId(checkId);
+                    } else {
+                        Log.d("parazit4", "Error: " + response.code() + " " + response.message());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
 }

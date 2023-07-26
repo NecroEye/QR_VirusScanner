@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(new QRviaCamera());
 
 
+
         binding.bottomNavContainer.setOnItemSelectedListener(item -> {
 
 
