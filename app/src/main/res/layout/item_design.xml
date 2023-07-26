@@ -7,7 +7,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="95dp"
+        android:layout_height="125dp"
         android:background="#FFFFFF">
 
 
@@ -15,9 +15,10 @@
            android:layout_width="60dp"
            android:layout_height="60dp"
            android:id="@+id/imageViewLayout"
+           app:cardBackgroundColor="#000000"
            app:cardCornerRadius="20dp"
-           android:layout_marginTop="20dp"
-           android:layout_marginLeft="20dp" >
+           android:layout_marginTop="30dp"
+           android:layout_marginLeft="15dp" >
 
 
            <ImageView
@@ -35,10 +36,11 @@
             android:layout_width="100dp"
             android:layout_height="30dp"
             android:text="URL"
+            android:fontFamily="@font/standard"
             android:textColor="#000000"
             android:textSize="20sp"
             android:layout_toRightOf="@id/imageViewLayout"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="35dp"
             android:layout_marginLeft="20dp"/>
 
         <TextView
@@ -46,6 +48,8 @@
             android:layout_width="70dp"
             android:layout_height="30dp"
             android:text="Güvenli"
+            android:textColor="@color/lightGreen"
+            android:textStyle="italic"
             android:gravity="center"
             android:textSize="17sp"
             android:layout_toRightOf="@id/typeOfBarcodeName"
@@ -55,12 +59,12 @@
         <TextView
             android:id="@+id/saveTimeText"
             android:layout_width="120dp"
-            android:layout_height="30dp"
+            android:layout_height="60dp"
             android:gravity="center"
             android:text="14:22"
             android:textSize="17sp"
             android:layout_toRightOf="@id/safetyStatusText"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"/>
 
         <TextView
@@ -69,9 +73,10 @@
             android:layout_height="30dp"
             android:text="www.google.com"
             android:scrollbars="vertical"
-            android:textSize="19sp"
+            android:textSize="23sp"
+            android:textColor="@color/black"
             android:layout_below="@id/typeOfBarcodeName"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="101dp"/>
         
         <View
@@ -82,7 +87,7 @@
             android:layout_below="@id/barcodeRawValueText"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="10dp"/>
     </RelativeLayout>
 
 </RelativeLayout>

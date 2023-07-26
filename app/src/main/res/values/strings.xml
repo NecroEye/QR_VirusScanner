@@ -3,4 +3,5 @@
     <string name="barkod_okuyucu">Barkod Okuyucu</string>
     <string name="resim_okuyucu">Resim Okuyucu</string>
     <string name="barkod_listem">Barkod Listem</string>
+    <string name="t_r">Türü:</string>
 </resources>

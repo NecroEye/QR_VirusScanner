@@ -42,7 +42,9 @@
            android:minWidth="250dp"
            android:minHeight="150dp"
            android:layout_marginLeft="70dp"
-           android:layout_marginTop="120dp">
+           android:layout_marginTop="120dp"
+           android:layout_marginRight="20dp"
+           >
 
 
            <ImageView
@@ -70,7 +72,7 @@
                 android:id="@+id/typeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Türü:"
+                android:text="@string/t_r"
                 android:gravity="center"
                 android:textColor="@color/colorBlue"
                 android:textSize="20sp"

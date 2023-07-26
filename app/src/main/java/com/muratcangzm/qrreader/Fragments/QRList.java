@@ -1,5 +1,6 @@
 package com.muratcangzm.qrreader.Fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,39 +24,48 @@ import java.util.List;
 public class QRList extends Fragment {
 
 
-    LinearLayoutManager manager;
+    private LinearLayoutManager manager;
     List<RecyclerModel> barcodeModel;
     Adapter adapter;
+    private SharedPreferences sharedPreferences = null;
+    private static final String PREF_NAME = "barcodeStorage";
 
     private QrListBinding binding;
 
-    public QRList(){
+    public QRList() {
         //Empty Constructor
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = QrListBinding.inflate(getLayoutInflater(), container,false);
+        binding = QrListBinding.inflate(getLayoutInflater(), container, false);
+
+        sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, getContext().MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
 
         Bundle bundle = getArguments();
 
-        if(bundle != null){
+        if (bundle != null) {
 
             String type = bundle.getString("KEY_TYPE");
             String raw = bundle.getString("KEY_RAW");
             String time = bundle.getString("KEY_TIME");
 
+            editor.putString("Type", type);
+            editor.putString("Raw", raw);
+            editor.putString("Time", time);
+
             initData(type, raw, time);
 
-        }
-        else{
+        } else {
 
             barcodeModel = new ArrayList<>();
+
             barcodeModel.add(new RecyclerModel(R.drawable.link, "URL", "www.google.com", "Güvenli", "unknown", null));
 
         }
-
 
 
         initRecyclerView();
@@ -92,15 +102,10 @@ public class QRList extends Fragment {
             break;
         }
 
-
-
-
-
-
     }
 
 
-    private void initRecyclerView(){
+    private void initRecyclerView() {
 
         manager = new LinearLayoutManager(requireContext());
         manager.setOrientation(RecyclerView.VERTICAL);

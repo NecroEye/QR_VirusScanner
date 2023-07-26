@@ -72,7 +72,6 @@ public class QRviaStorage extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrStorageBinding.inflate(getLayoutInflater(), container, false);
 
-
         scannerOptions = new BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build();
@@ -107,7 +106,6 @@ public class QRviaStorage extends Fragment {
 
 
         binding.Scan.setOnClickListener(v -> {
-
 
             detectResultFromImage();
 
@@ -202,6 +200,9 @@ public class QRviaStorage extends Fragment {
 
                     Type = "URL";
                     rawVal = url;
+
+                    QRviaCamera.scanUrl(url);
+
 
 
                 }

@@ -3,6 +3,9 @@ package com.muratcangzm.qrreader.Fragments;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,11 +14,14 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.webkit.WebSettings;
+import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,14 +37,24 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.annotations.SerializedName;
 import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+import com.muratcangzm.qrreader.Api.VirusTotalApiService;
 import com.muratcangzm.qrreader.CaptureAct;
+import com.muratcangzm.qrreader.Model.ScanRequest;
+import com.muratcangzm.qrreader.Model.VirusTotalModel;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrCameraBinding;
 
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class QRviaCamera extends Fragment {
 
@@ -156,24 +172,33 @@ public class QRviaCamera extends Fragment {
             LinearLayout share = dialog.findViewById(R.id.layoutShare);
             LinearLayout scanner = dialog.findViewById(R.id.layoutScan);
             LinearLayout browser = dialog.findViewById(R.id.layoutBrowser);
+            LinearLayout copy = dialog.findViewById(R.id.layoutCopy);
 
             barcodeTextView.setMovementMethod(new ScrollingMovementMethod());
             barcodeTextView.setText(result.getContents());
 
 
-            if(result.getContents().startsWith("www") || result.getContents().startsWith("http")){
+            if (result.getContents().startsWith("www") || result.getContents().startsWith("http")) {
 
-                 Type = "URL";
-                 scanner.setVisibility(View.VISIBLE);
-                 browser.setVisibility(View.VISIBLE);
+                Type = "URL";
+                scanner.setVisibility(View.VISIBLE);
+                browser.setVisibility(View.VISIBLE);
 
+                binding.web.setWebViewClient(new WebViewClient());
 
-            }
-            else{
+                WebSettings webSettings = binding.web.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                binding.web.loadUrl(result.getContents());
+
+                binding.web.setVisibility(View.VISIBLE);
+
+            } else {
                 Type = "Ürün";
 
                 scanner.setVisibility(View.GONE);
                 browser.setVisibility(View.GONE);
+
+                binding.web.setVisibility(View.INVISIBLE);
 
             }
 
@@ -185,8 +210,8 @@ public class QRviaCamera extends Fragment {
 
                     if (Type != null && rawVal != null) {
 
-                      sendThreeData(Type, rawVal, getTime());
-                      dialog.dismiss();
+                        sendThreeData(Type, rawVal, getTime());
+                        dialog.dismiss();
 
 
                     }
@@ -206,10 +231,24 @@ public class QRviaCamera extends Fragment {
                 }
             });
 
+            copy.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+
+                    ClipData clipData = ClipData.newPlainText("Veri", result.getContents());
+                    clipboardManager.setPrimaryClip(clipData);
+                    Snackbar.make(binding.scanQR,"Kopyalandı", Snackbar.LENGTH_SHORT).show();
+
+                }
+            });
+
             scanner.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
+                    scanUrl(result.getContents());
                     // it will empty until virustotal api is ready
                 }
             });
@@ -287,7 +326,54 @@ public class QRviaCamera extends Fragment {
         fragmentTransaction.addToBackStack(null);
 
         fragmentTransaction.commit();
-        Snackbar.make(binding.scanQR,"Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(binding.scanQR, "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
     }
+
+
+    public static void scanUrl(String url){
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://www.virustotal.com/api/v3/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        VirusTotalApiService virusTotalApiService = retrofit.create(VirusTotalApiService.class);
+
+
+        ScanRequest scanRequest = new ScanRequest(url);
+        Log.d("Sonuç:", "ilk bölüm");
+
+        Call<VirusTotalModel> call = virusTotalApiService.scanUrl(scanRequest);
+        call.enqueue(new Callback<VirusTotalModel>() {
+            @Override
+            public void onResponse(Call<VirusTotalModel> call, Response<VirusTotalModel> response) {
+
+                if(response.isSuccessful()){
+
+                    Log.d("Sonuç:", "ikinci bölüm");
+
+                    VirusTotalModel virusTotalModel = response.body();
+
+                    if(virusTotalModel != null){
+
+                     String scanId = virusTotalModel.getScanId();
+                     Log.d("Sonuç:", scanId);
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<VirusTotalModel> call, Throwable t) {
+
+
+                Log.d("Hata", "Sorun: " + t.getMessage(), t);
+
+            }
+        });
+
+    }
+
 
 }

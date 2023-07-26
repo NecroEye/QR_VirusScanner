@@ -3,6 +3,7 @@ package com.muratcangzm.qrreader.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,9 +14,10 @@ import com.muratcangzm.qrreader.R;
 
 import java.util.List;
 
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements View.OnClickListener {
 
     private List<RecyclerModel> barcodeList;
+    private AdapterView.OnItemClickListener clickListener;
 
     public Adapter(List<RecyclerModel> barcodeList){
 
@@ -46,9 +48,23 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     }
 
+
+
+
     @Override
     public int getItemCount() {
         return barcodeList.size();
+    }
+
+    @Override
+    public void onClick(View v) {
+
+
+
+    }
+
+    public interface onItemClickListener{
+        void onItemClick(int position);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -63,6 +79,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
 
             barcodeIcon = itemView.findViewById(R.id.imageViewItem);
             typeText = itemView.findViewById(R.id.typeOfBarcodeName);
