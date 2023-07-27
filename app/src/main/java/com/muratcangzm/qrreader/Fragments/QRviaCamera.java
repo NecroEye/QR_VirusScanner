@@ -1,6 +1,7 @@
 package com.muratcangzm.qrreader.Fragments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -22,6 +23,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,9 +33,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -74,7 +79,7 @@ public class QRviaCamera extends Fragment {
 
 
     private static final int CAMERA_REQUEST_CODE = 100;
-
+    private static FragmentActivity activity;
     private String rawVal, Type = null;
     private QrCameraBinding binding;
 
@@ -91,9 +96,10 @@ public class QRviaCamera extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrCameraBinding.inflate(getLayoutInflater(), container, false);
 
-
+         this.activity = requireActivity();
 
         binding.scanQR.setOnClickListener(view -> {
+
 
             if (!checkSelfPermission()) {
                 requestCameraPermission();
@@ -267,7 +273,9 @@ public class QRviaCamera extends Fragment {
                 @Override
                 public void onClick(View v) {
 
+
                     // it will empty until virustotal api is ready
+                    dialog.dismiss();
                     checkUrl(result.getContents());
                     basicGet();
                 }
@@ -409,7 +417,25 @@ public class QRviaCamera extends Fragment {
                         final int Reputation = json.get("data").getAsJsonObject().get("attributes").getAsJsonObject().get("reputation").getAsInt();
 
 
-                        Log.d("gayshit", String.format("Good %s, Bad %s, Suspicious %s, Reputation %s", harmless, malicious, suspicious, Reputation));
+                        Log.d("Data", String.format("Good %s, Bad %s, Suspicious %s, Reputation %s", harmless, malicious, suspicious, Reputation));
+
+
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Show the appropriate dialog here based on the analysis result
+                                if (malicious <= 0 && harmless > 0) {
+                                    showSafeDialog(harmless, malicious, suspicious);
+                                } else if (malicious > 0) {
+                                    showDangerDialog(harmless, malicious, suspicious);
+                                } else if (harmless == 0 && malicious == 0) {
+                                    showWarningDialog(harmless, malicious, suspicious );
+                                } else {
+                                    showWarningDialog(harmless, malicious, suspicious );
+                                }
+                            }
+                        });
+
 
                         Log.d("parazitnotdead","Response Body: " + responseBodyString);
                     } else {
@@ -417,6 +443,7 @@ public class QRviaCamera extends Fragment {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Toast.makeText(activity,"Zaman Aşımına Uğradı Tekrar Deneyin",Toast.LENGTH_SHORT).show();
                 } finally {
                     // Close the client after processing the response
                     client.dispatcher().executorService().shutdown();
@@ -442,22 +469,20 @@ public class QRviaCamera extends Fragment {
 
         // Replace the API key and URL with your own values
         String apiKey = "ca51b3756aa20f7f99d75d3ffe38c1d43bd9ee1bab90c72ff597ccf6df317c9c";
-        String url1 = "https://www.virustotal.com/api/v3/urls"; // buda olmazsa akşama virustotalin evine bi  bayram ziyareti gerçeklei try brother: D:DD
-
-        // Set the request body as a form encoded string try :D try :D  ne anlamadim
+        String url1 = "https://www.virustotal.com/api/v3/urls";
 
         // Create the request body
         RequestBody requestBody = new FormBody.Builder()
                 .add("url", url).build();
         // Create the POST request and add headers
         Request request = new Request.Builder()
-                .url(url1) // has :DDDDDDDDDDD try it.
+                .url(url1)
                 .post(requestBody)
                 .addHeader("accept", "application/json")
                 .addHeader("x-apikey", apiKey)
                 .build();
 
-        // Send the request and process the response asynchronously try brotheR: hassssssss
+        // Send the request and process the response asynchronously
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
             public void onResponse(okhttp3.Call call, Response response) {
@@ -481,6 +506,117 @@ public class QRviaCamera extends Fragment {
                 e.printStackTrace();
             }
         });
+    }
+
+    private static void showSafeDialog(int harmless, int malicious, int suspicious){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
+        View view = LayoutInflater.from(activity).inflate(R.layout.layout_safe_dialog, (ConstraintLayout)
+                activity.findViewById(R.id.layoutDialogContainer));
+
+        builder.setView(view);
+
+        ((TextView) view.findViewById(R.id.titleText)).setText("Taramada Virüs Bulunmadı!");
+        ((TextView) view.findViewById(R.id.textMessage)).setText("Bulunan Zararsız İçerik: " + harmless
+                + "\nBulunan Virüs Sayısı: " + malicious + "\nBelirsiz İçerik: " + suspicious);
+        ((Button) view.findViewById(R.id.buttonActionStay)).setText("Tamam");
+        ((Button) view.findViewById(R.id.buttonActionGo)).setText("Tarayıcıya git");
+        ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.safeicon);
+
+        final AlertDialog alertDialog = builder.create();
+
+        view.findViewById(R.id.buttonActionStay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Webten görüntüle
+                alertDialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.buttonActionGo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(activity,"K",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+
+        alertDialog.show();
+
+
+    }
+
+    private static void showWarningDialog(int harmless, int malicious, int suspicious){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
+        View view = LayoutInflater.from(activity).inflate(R.layout.layout_warning_dialog, (ConstraintLayout)
+                activity.findViewById(R.id.layoutDialogContainer));
+
+        builder.setView(view);
+
+        ((TextView) view.findViewById(R.id.titleText)).setText("Belirsiz!");
+        ((TextView) view.findViewById(R.id.textMessage)).setText("Bulunan Zararsız İçerik: " + harmless
+                + "\nBulunan Virüs Sayısı: " + malicious + "\nBelirsiz İçerik: " + suspicious);
+        ((Button) view.findViewById(R.id.buttonActionStay)).setText("Tamam");
+        ((Button) view.findViewById(R.id.buttonActionGo)).setText("Tarayıcıya git");
+        ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.safeicon);
+
+        final AlertDialog alertDialog = builder.create();
+
+        view.findViewById(R.id.buttonActionStay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Webten görüntüle
+                alertDialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.buttonActionGo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(activity,"K",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+
+        alertDialog.show();
+
+    }
+    private static void showDangerDialog(int harmless, int malicious, int suspicious){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
+        View view = LayoutInflater.from(activity).inflate(R.layout.layout_danger_dialog, (ConstraintLayout)
+                activity.findViewById(R.id.layoutDialogContainer));
+
+        builder.setView(view);
+
+        ((TextView) view.findViewById(R.id.titleText)).setText("Virüs Tespit Edildi!");
+        ((TextView) view.findViewById(R.id.textMessage)).setText("Bulunan Zararsız İçerik: " + harmless
+        + "\nBulunan Virüs Sayısı: " + malicious + "\nBelirsiz İçerik: " + suspicious);
+        ((Button) view.findViewById(R.id.buttonAction)).setText("Tamam");
+        ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.virus);
+
+        final AlertDialog alertDialog = builder.create();
+
+        view.findViewById(R.id.buttonAction).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Webten görüntüle
+                alertDialog.dismiss();
+            }
+        });
+
+
+
+        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+
+        alertDialog.show();
+
     }
 
 }
