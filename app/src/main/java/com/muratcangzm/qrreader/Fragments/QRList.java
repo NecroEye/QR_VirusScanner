@@ -1,4 +1,5 @@
 package com.muratcangzm.qrreader.Fragments;
+
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -13,10 +14,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.RecyclerView.Adapter;
 import com.muratcangzm.qrreader.RecyclerView.RecyclerModel;
 import com.muratcangzm.qrreader.databinding.QrListBinding;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +46,11 @@ public class QRList extends Fragment {
         binding = QrListBinding.inflate(getLayoutInflater(), container, false);
 
         sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, getContext().MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-         itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_design,
-                 requireActivity().findViewById(R.id.itemContainer));
+        itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_design,
+                requireActivity().findViewById(R.id.itemContainer));
 
-         safetyTextView = itemView.findViewById(R.id.safetyStatusText);
+        safetyTextView = itemView.findViewById(R.id.safetyStatusText);
 
         Bundle bundle = getArguments();
 
@@ -58,24 +60,19 @@ public class QRList extends Fragment {
             String raw = bundle.getString("KEY_RAW");
             String time = bundle.getString("KEY_TIME");
 
-            editor.putString("Type", type);
-            editor.putString("Raw", raw);
-            editor.putString("Time", time);
 
+            if (QRviaCamera.safety != null) initData(type, raw, time, QRviaCamera.safety);
+            initRecyclerView();
 
-                if(QRviaCamera.safety != null) initData(type, raw, time, QRviaCamera.safety);
 
         } else {
 
             barcodeModel = new ArrayList<>();
-
-
+            initRecyclerView();
             barcodeModel.add(new RecyclerModel(R.drawable.link, "URL", "www.google.com", "Güvenli", "unknown", null));
 
         }
 
-
-        initRecyclerView();
 
         return binding.getRoot();
     }
@@ -92,19 +89,22 @@ public class QRList extends Fragment {
         barcodeModel = new ArrayList<>();
 
 
-        switch (type){
+        switch (type) {
 
-            case "URL":{
+            case "URL": {
 
 
-                 switch (QRviaCamera.safety){
+                switch (QRviaCamera.safety) {
 
-                     case "Güvenli": safetyTextView.setTextColor(requireContext().getColor(R.color.lightGreen));
-                     break;
-                     case "Belirsiz": safetyTextView.setTextColor(requireContext().getColor(R.color.colorWarning));
-                     break;
-                     case "Tehlikeli": safetyTextView.setTextColor(requireContext().getColor(R.color.lightRed));
-                 }
+                    case "Güvenli":
+                        safetyTextView.setTextColor(Color.GREEN);
+                        break;
+                    case "Belirsiz":
+                        safetyTextView.setTextColor(Color.YELLOW);
+                        break;
+                    case "Tehlikeli":
+                        safetyTextView.setTextColor(Color.RED);
+                }
 
 
                 barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, safety, time, null));
@@ -112,7 +112,7 @@ public class QRList extends Fragment {
             }
             break;
 
-            case "Ürün":{
+            case "Ürün": {
 
                 barcodeModel.add(new RecyclerModel(R.drawable.product, type, raw, "", time, null));
 

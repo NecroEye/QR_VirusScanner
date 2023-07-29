@@ -248,6 +248,7 @@ public class QRviaStorage extends Fragment {
                 }
                 break;
 
+
                 case Barcode.TYPE_GEO: {
 
                     Barcode.GeoPoint geoPoint = barcode.getGeoPoint();
