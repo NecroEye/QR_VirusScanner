@@ -2,6 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
 
+
     <item android:id="@+id/qrReader"
         android:title="@string/barkod_okuyucu"
         android:icon="@drawable/baseline_qr_code_scanner_24" />

@@ -1,7 +1,6 @@
 package com.muratcangzm.qrreader.Fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -34,7 +33,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -42,38 +40,26 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonReader;
-import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-import com.muratcangzm.qrreader.Api.VirusTotalApiService;
 import com.muratcangzm.qrreader.CaptureAct;
-import com.muratcangzm.qrreader.Model.ScanRequest;
-import com.muratcangzm.qrreader.Model.VirusTotalModel;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrCameraBinding;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Objects;
 
 import okhttp3.FormBody;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class QRviaCamera extends Fragment {
 
@@ -82,9 +68,13 @@ public class QRviaCamera extends Fragment {
     private static FragmentActivity activity;
     private String rawVal, Type = null;
     private QrCameraBinding binding;
+    private static boolean isSafe = false;
+    public static String safety;
 
     private static boolean checkingUrl;
+    private static Uri scannedUrl;
     private static String checkId;
+    private static View _mainScreen, _loadingScreen;
     private static HashMap<String, Objects> checkResult;
 
     public QRviaCamera() {
@@ -96,7 +86,8 @@ public class QRviaCamera extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrCameraBinding.inflate(getLayoutInflater(), container, false);
 
-         this.activity = requireActivity();
+
+        this.activity = requireActivity();
 
         binding.scanQR.setOnClickListener(view -> {
 
@@ -208,14 +199,17 @@ public class QRviaCamera extends Fragment {
                 Type = "URL";
                 scanner.setVisibility(View.VISIBLE);
                 browser.setVisibility(View.VISIBLE);
-
                 binding.web.setWebViewClient(new WebViewClient());
 
-                WebSettings webSettings = binding.web.getSettings();
-                webSettings.setJavaScriptEnabled(true);
-                binding.web.loadUrl(result.getContents());
 
-                binding.web.setVisibility(View.VISIBLE);
+                if (isSafe) {
+                    WebSettings webSettings = binding.web.getSettings();
+                    webSettings.setJavaScriptEnabled(true);
+                    binding.web.loadUrl(result.getContents());
+
+                    binding.web.setVisibility(View.VISIBLE);
+                }
+
 
             } else {
                 Type = "Ürün";
@@ -235,7 +229,7 @@ public class QRviaCamera extends Fragment {
 
                     if (Type != null && rawVal != null) {
 
-                        sendThreeData(Type, rawVal, getTime());
+                        sendDataToFragment(Type, rawVal, getTime());
                         dialog.dismiss();
 
 
@@ -272,11 +266,14 @@ public class QRviaCamera extends Fragment {
             scanner.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    isSafe = false;
 
+                    binding.cameraMainScreen.setVisibility(View.GONE);
+                    binding.loadingScreen.setVisibility(View.VISIBLE);
 
                     // it will empty until virustotal api is ready
                     dialog.dismiss();
-                    checkUrl(result.getContents());
+                    checkUrl(result.getContents(), binding.cameraMainScreen, binding.loadingScreen);
                     basicGet();
                 }
             });
@@ -335,7 +332,7 @@ public class QRviaCamera extends Fragment {
         return currentTimeString + " " + day + "/" + month + "/" + year;
     }
 
-    private void sendThreeData(final String type, final String rawValue, final String time) {
+    private void sendDataToFragment(final String type, final String rawValue, final String time) {
 
         QRList fragmentList = new QRList();
 
@@ -344,6 +341,7 @@ public class QRviaCamera extends Fragment {
         bundle.putString("KEY_TYPE", type);
         bundle.putString("KEY_RAW", rawValue);
         bundle.putString("KEY_TIME", time);
+
 
         fragmentList.setArguments(bundle);
 
@@ -376,7 +374,7 @@ public class QRviaCamera extends Fragment {
                 if (response.isSuccessful()) {
                     String responseBody = response.body().string();
                     // Do something with the response body
-                    Log.d("parazit", "" +responseBody);
+                    Log.d("parazit", "" + responseBody);
                 }
             }
         });
@@ -408,13 +406,19 @@ public class QRviaCamera extends Fragment {
                 try (ResponseBody responseBody = response.body()) {
                     if (response.isSuccessful()) {
                         String responseBodyString = responseBody.string();
-                        checkingUrl = false; //
+                        checkingUrl = false;
                         JsonObject json = new JsonParser().parse(responseBodyString).getAsJsonObject();
                         JsonObject totalVotes = json.get("data").getAsJsonObject().get("attributes").getAsJsonObject().get("last_analysis_stats").getAsJsonObject();
                         final int harmless = totalVotes.get("harmless").getAsInt();
                         final int malicious = totalVotes.get("malicious").getAsInt();
                         final int suspicious = totalVotes.get("suspicious").getAsInt();
                         final int Reputation = json.get("data").getAsJsonObject().get("attributes").getAsJsonObject().get("reputation").getAsInt();
+
+
+                        activity.runOnUiThread(() -> {
+                            _mainScreen.setVisibility(View.VISIBLE);
+                            _loadingScreen.setVisibility(View.GONE);
+                        });
 
 
                         Log.d("Data", String.format("Good %s, Bad %s, Suspicious %s, Reputation %s", harmless, malicious, suspicious, Reputation));
@@ -426,24 +430,39 @@ public class QRviaCamera extends Fragment {
                                 // Show the appropriate dialog here based on the analysis result
                                 if (malicious <= 0 && harmless > 0) {
                                     showSafeDialog(harmless, malicious, suspicious);
+                                    safety = "Güvenli";
+                                    isSafe = true;
                                 } else if (malicious > 0) {
                                     showDangerDialog(harmless, malicious, suspicious);
+                                    safety = "Tehlikeli";
+                                    isSafe = false;
                                 } else if (harmless == 0 && malicious == 0) {
-                                    showWarningDialog(harmless, malicious, suspicious );
+                                    showWarningDialog(harmless, malicious, suspicious);
+                                    safety = "Belirsiz";
+
+                                    isSafe = true;
                                 } else {
-                                    showWarningDialog(harmless, malicious, suspicious );
+                                    showWarningDialog(harmless, malicious, suspicious);
                                 }
+                                Log.d("Güvenlik1: ", ""+safety);
                             }
                         });
 
 
-                        Log.d("parazitnotdead","Response Body: " + responseBodyString);
+                        Log.d("parazitnotdead", "Response Body: " + responseBodyString);
                     } else {
                         Log.d("parazit_revamped", "Error: " + response.code() + " " + response.message());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(activity,"Zaman Aşımına Uğradı Tekrar Deneyin",Toast.LENGTH_SHORT).show();
+
+                    activity.runOnUiThread(() -> {
+                        _mainScreen.setVisibility(View.VISIBLE);
+                        _loadingScreen.setVisibility(View.GONE);
+                    });
+
+
+                    Toast.makeText(activity, "Zaman Aşımına Uğradı Tekrar Deneyin", Toast.LENGTH_SHORT).show();
                 } finally {
                     // Close the client after processing the response
                     client.dispatcher().executorService().shutdown();
@@ -461,8 +480,11 @@ public class QRviaCamera extends Fragment {
     }
 
 
+    public static void checkUrl(String url, View mainScreen, View loadingScreen) {
 
-    public static void checkUrl(String url) {
+        _mainScreen = mainScreen;
+        _loadingScreen = loadingScreen;
+        scannedUrl = Uri.parse(url);
 
         checkingUrl = true;
         OkHttpClient client = new OkHttpClient();
@@ -490,13 +512,14 @@ public class QRviaCamera extends Fragment {
                     if (response.isSuccessful()) {
                         String responseBodyString = responseBody.string();
                         JsonObject json = new JsonParser().parse(responseBodyString).getAsJsonObject();
-                        Log.d("parazit3", ""+ responseBodyString);
+                        Log.d("parazit3", "" + responseBodyString);
                         checkId = json.get("data").getAsJsonObject().get("id").getAsString();
                         urlAnalysisFromId(checkId);
                     } else {
                         Log.d("parazit4", "Error: " + response.code() + " " + response.message());
                     }
                 } catch (Exception e) {
+                    Toast.makeText(activity, "Zaman Aşımına Uğradı Tekrar Deneyin", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }
@@ -508,7 +531,7 @@ public class QRviaCamera extends Fragment {
         });
     }
 
-    private static void showSafeDialog(int harmless, int malicious, int suspicious){
+    private static void showSafeDialog(int harmless, int malicious, int suspicious) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
         View view = LayoutInflater.from(activity).inflate(R.layout.layout_safe_dialog, (ConstraintLayout)
@@ -529,7 +552,7 @@ public class QRviaCamera extends Fragment {
             @Override
             public void onClick(View v) {
 
-                //Webten görüntüle
+
                 alertDialog.dismiss();
             }
         });
@@ -537,18 +560,24 @@ public class QRviaCamera extends Fragment {
         view.findViewById(R.id.buttonActionGo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(activity,"K",Toast.LENGTH_SHORT).show();
+
+                if (scannedUrl != null) {
+                    Intent goToWeb = new Intent(Intent.ACTION_VIEW, scannedUrl);
+                    activity.startActivity(goToWeb);
+                }
+
             }
         });
 
-        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        if (alertDialog.getWindow() != null)
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
 
         alertDialog.show();
 
 
     }
 
-    private static void showWarningDialog(int harmless, int malicious, int suspicious){
+    private static void showWarningDialog(int harmless, int malicious, int suspicious) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
         View view = LayoutInflater.from(activity).inflate(R.layout.layout_warning_dialog, (ConstraintLayout)
@@ -577,16 +606,18 @@ public class QRviaCamera extends Fragment {
         view.findViewById(R.id.buttonActionGo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(activity,"K",Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "K", Toast.LENGTH_SHORT).show();
             }
         });
 
-        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        if (alertDialog.getWindow() != null)
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
 
         alertDialog.show();
 
     }
-    private static void showDangerDialog(int harmless, int malicious, int suspicious){
+
+    private static void showDangerDialog(int harmless, int malicious, int suspicious) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
         View view = LayoutInflater.from(activity).inflate(R.layout.layout_danger_dialog, (ConstraintLayout)
@@ -596,7 +627,7 @@ public class QRviaCamera extends Fragment {
 
         ((TextView) view.findViewById(R.id.titleText)).setText("Virüs Tespit Edildi!");
         ((TextView) view.findViewById(R.id.textMessage)).setText("Bulunan Zararsız İçerik: " + harmless
-        + "\nBulunan Virüs Sayısı: " + malicious + "\nBelirsiz İçerik: " + suspicious);
+                + "\nBulunan Virüs Sayısı: " + malicious + "\nBelirsiz İçerik: " + suspicious);
         ((Button) view.findViewById(R.id.buttonAction)).setText("Tamam");
         ((ImageView) view.findViewById(R.id.imageIcon)).setImageResource(R.drawable.virus);
 
@@ -612,8 +643,8 @@ public class QRviaCamera extends Fragment {
         });
 
 
-
-        if(alertDialog.getWindow() != null) alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        if (alertDialog.getWindow() != null)
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
 
         alertDialog.show();
 

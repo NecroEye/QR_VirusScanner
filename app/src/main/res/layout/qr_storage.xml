@@ -27,11 +27,23 @@
 
         />
 
+    <RelativeLayout
+        android:id="@+id/loading_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <include layout="@layout/loading_screen"/>
+
+    </RelativeLayout>
+
 
     <LinearLayout
+        android:id="@+id/main_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:visibility="visible"
         >
 
 
@@ -52,8 +64,8 @@
                android:layout_width="match_parent"
                android:layout_height="150dp"
                android:maxHeight="150dp"
-               android:maxWidth="100dp"
-               android:scaleType="fitCenter"
+               android:maxWidth="150dp"
+               android:scaleType="centerInside"
                android:layout_gravity="center"
                app:srcCompat="@drawable/image" />
 

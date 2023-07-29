@@ -4,24 +4,17 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -30,8 +23,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -49,11 +40,8 @@ import com.google.mlkit.vision.common.InputImage;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrStorageBinding;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class QRviaStorage extends Fragment {
 
@@ -76,10 +64,12 @@ public class QRviaStorage extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrStorageBinding.inflate(getLayoutInflater(), container, false);
 
-
         scannerOptions = new BarcodeScannerOptions.Builder()
                 .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
                 .build();
+
+        binding.loadingScreen.setVisibility(View.GONE);
+        binding.mainScreen.setVisibility(View.VISIBLE);
 
 
         binding.rawTypeResult.setMovementMethod(new ScrollingMovementMethod());
@@ -111,6 +101,7 @@ public class QRviaStorage extends Fragment {
 
 
         binding.Scan.setOnClickListener(v -> {
+
 
             detectResultFromImage();
 
@@ -167,7 +158,6 @@ public class QRviaStorage extends Fragment {
 
             int ValueType = barcode.getValueType();
 
-
             switch (ValueType) {
 
                 case Barcode.TYPE_WIFI: {
@@ -206,7 +196,9 @@ public class QRviaStorage extends Fragment {
                     Type = "URL";
                     rawVal = url;
 
-                    QRviaCamera.checkUrl(url);
+                    binding.loadingScreen.setVisibility(View.VISIBLE);
+                    binding.mainScreen.setVisibility(View.GONE);
+                    QRviaCamera.checkUrl(url, binding.mainScreen, binding.loadingScreen);
                     QRviaCamera.basicGet();
 
 
@@ -269,6 +261,8 @@ public class QRviaStorage extends Fragment {
 
 
                 }
+
+                break;
 
                 default: {
                     binding.typeTextResult.setText("Ürün değeri");
@@ -420,9 +414,6 @@ public class QRviaStorage extends Fragment {
         Snackbar.make(binding.saveList, "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
 
     }
-
-
-
 
 
 }
