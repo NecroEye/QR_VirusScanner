@@ -352,7 +352,7 @@ public class QRviaCamera extends Fragment {
         fragmentTransaction.addToBackStack(null);
 
         fragmentTransaction.commit();
-        Snackbar.make(binding.scanQR, "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(binding.scanQR,  "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
     }
 
     public static void basicGet() {

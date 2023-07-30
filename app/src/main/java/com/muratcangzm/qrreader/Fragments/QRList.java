@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +31,10 @@ public class QRList extends Fragment {
     List<RecyclerModel> barcodeModel;
     Adapter adapter;
     private View itemView;
+    private static final String PREF_NAME = "barcodeStorage";
+    private static final String KEY_PREFIX = "Data_";
     private TextView safetyTextView;
     private SharedPreferences sharedPreferences = null;
-    private static final String PREF_NAME = "barcodeStorage";
 
     private QrListBinding binding;
 
@@ -46,13 +48,47 @@ public class QRList extends Fragment {
         binding = QrListBinding.inflate(getLayoutInflater(), container, false);
 
         sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, getContext().MODE_PRIVATE);
+        barcodeModel = new ArrayList<>();
+
+
+        // Retrieve the number of items stored previously (if any)
 
         itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_design,
                 requireActivity().findViewById(R.id.itemContainer));
 
         safetyTextView = itemView.findViewById(R.id.safetyStatusText);
 
+
+        int itemCount = sharedPreferences.getInt("itemCount",0);
+
+
         Bundle bundle = getArguments();
+
+
+        if(itemCount > 0){
+            // Load previously saved items
+            for (int i = itemCount; 1 <= i; i--){
+
+                String _type = sharedPreferences.getString(KEY_PREFIX + i + "_Type", "");
+                String _raw = sharedPreferences.getString(KEY_PREFIX + i + "_Raw", "");
+                String _time = sharedPreferences.getString(KEY_PREFIX + i + "_Time", "");
+                String _safety = sharedPreferences.getString(KEY_PREFIX + i + "_Safety", "");
+                Log.d("Kayıtlı: ", _type);
+                if (_type.matches("URL")) {
+                    initData(_type, _raw, _time, _safety);
+
+                }
+                else if(_type.matches("Ürün")){
+                    initData(_type, _raw, _time, "");
+
+                }
+
+            }
+        }
+        else{
+            barcodeModel.add(new RecyclerModel(R.drawable.link, "URL", "www.google.com", "Güvenli", "unknown", null));
+        }
+
 
         if (bundle != null) {
 
@@ -60,19 +96,17 @@ public class QRList extends Fragment {
             String raw = bundle.getString("KEY_RAW");
             String time = bundle.getString("KEY_TIME");
 
+            Log.d("Tipi: ", ""+ type);
+            Log.d("Güvenlik: ", ""+ QRviaCamera.safety);
 
-            if (QRviaCamera.safety != null) initData(type, raw, time, QRviaCamera.safety);
-            initRecyclerView();
-
-
-        } else {
-
-            barcodeModel = new ArrayList<>();
-            initRecyclerView();
-            barcodeModel.add(new RecyclerModel(R.drawable.link, "URL", "www.google.com", "Güvenli", "unknown", null));
-
+            initData(type, raw, time, QRviaCamera.safety);
+            if(type.matches("Ürün")) saveData(type, raw, time, "");
+            else{
+                saveData(type, raw, time, QRviaCamera.safety);
+            }
         }
 
+        initRecyclerView();
 
         return binding.getRoot();
     }
@@ -86,26 +120,10 @@ public class QRList extends Fragment {
 
     private void initData(final String type, final String raw, final String time, final String safety) {
 
-        barcodeModel = new ArrayList<>();
-
 
         switch (type) {
 
             case "URL": {
-
-
-                switch (QRviaCamera.safety) {
-
-                    case "Güvenli":
-                        safetyTextView.setTextColor(Color.GREEN);
-                        break;
-                    case "Belirsiz":
-                        safetyTextView.setTextColor(Color.YELLOW);
-                        break;
-                    case "Tehlikeli":
-                        safetyTextView.setTextColor(Color.RED);
-                }
-
 
                 barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, safety, time, null));
 
@@ -133,5 +151,19 @@ public class QRList extends Fragment {
         adapter.notifyDataSetChanged();
 
 
+    }
+
+
+    private void saveData(String type, String raw, String time, String safety) {
+        int itemCount = sharedPreferences.getInt("itemCount", 0);
+        itemCount++;
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_PREFIX + itemCount + "_Type", type);
+        editor.putString(KEY_PREFIX + itemCount + "_Raw", raw);
+        editor.putString(KEY_PREFIX + itemCount + "_Time", time);
+        editor.putString(KEY_PREFIX + itemCount + "_Safety", safety);
+        editor.putInt("itemCount", itemCount);
+        editor.apply();
     }
 }
