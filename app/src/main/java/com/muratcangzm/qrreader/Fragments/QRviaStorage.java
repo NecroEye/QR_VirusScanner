@@ -140,6 +140,8 @@ public class QRviaStorage extends Fragment {
         } catch (Exception e) {
             e.getStackTrace();
             Log.e("Error on StorageFragment: ", e.getMessage());
+            Toast.makeText(requireContext(), "İşlem başarısız. Tekrar Deneyiniz", Toast.LENGTH_SHORT).show();
+
         }
 
     }

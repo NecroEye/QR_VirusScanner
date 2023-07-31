@@ -75,7 +75,6 @@ public class QRviaCamera extends Fragment {
     private static Uri scannedUrl;
     private static String checkId;
     private static View _mainScreen, _loadingScreen;
-    private static HashMap<String, Objects> checkResult;
 
     public QRviaCamera() {
         //Empty Constructor
@@ -201,14 +200,11 @@ public class QRviaCamera extends Fragment {
                 browser.setVisibility(View.VISIBLE);
                 binding.web.setWebViewClient(new WebViewClient());
 
+                WebSettings webSettings = binding.web.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                binding.web.loadUrl(result.getContents());
 
-                if (isSafe) {
-                    WebSettings webSettings = binding.web.getSettings();
-                    webSettings.setJavaScriptEnabled(true);
-                    binding.web.loadUrl(result.getContents());
-
-                    binding.web.setVisibility(View.VISIBLE);
-                }
+                binding.webLayout.setVisibility(View.VISIBLE);
 
 
             } else {
@@ -217,7 +213,7 @@ public class QRviaCamera extends Fragment {
                 scanner.setVisibility(View.GONE);
                 browser.setVisibility(View.GONE);
 
-                binding.web.setVisibility(View.INVISIBLE);
+                binding.webLayout.setVisibility(View.INVISIBLE);
 
             }
 
@@ -271,7 +267,6 @@ public class QRviaCamera extends Fragment {
                     binding.cameraMainScreen.setVisibility(View.GONE);
                     binding.loadingScreen.setVisibility(View.VISIBLE);
 
-                    // it will empty until virustotal api is ready
                     dialog.dismiss();
                     checkUrl(result.getContents(), binding.cameraMainScreen, binding.loadingScreen);
                     basicGet();
@@ -352,7 +347,7 @@ public class QRviaCamera extends Fragment {
         fragmentTransaction.addToBackStack(null);
 
         fragmentTransaction.commit();
-        Snackbar.make(binding.scanQR,  "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(binding.scanQR, "Başarılı bir şekilde eklendi.", Snackbar.LENGTH_SHORT).show();
     }
 
     public static void basicGet() {
@@ -444,7 +439,7 @@ public class QRviaCamera extends Fragment {
                                 } else {
                                     showWarningDialog(harmless, malicious, suspicious);
                                 }
-                                Log.d("Güvenlik1: ", ""+safety);
+                                Log.d("Güvenlik1: ", "" + safety);
                             }
                         });
 

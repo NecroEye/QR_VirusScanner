@@ -74,7 +74,7 @@
             android:layout_height="32dp"
             android:text="www.google.com"
             android:scrollbars="vertical"
-            android:textSize="23sp"
+            android:textSize="21sp"
             android:textColor="@color/black"
             android:layout_below="@id/typeOfBarcodeName"
             android:layout_marginTop="10dp"
