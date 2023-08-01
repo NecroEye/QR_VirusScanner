@@ -50,9 +50,6 @@ import com.muratcangzm.qrreader.databinding.QrCameraBinding;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Objects;
-
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
