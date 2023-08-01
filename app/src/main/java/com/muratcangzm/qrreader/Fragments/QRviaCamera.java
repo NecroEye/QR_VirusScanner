@@ -254,6 +254,7 @@ public class QRviaCamera extends Fragment {
 
                     ClipData clipData = ClipData.newPlainText("Veri", result.getContents());
                     clipboardManager.setPrimaryClip(clipData);
+                    dialog.dismiss();
                     Snackbar.make(binding.scanQR, "Kopyalandı", Snackbar.LENGTH_SHORT).show();
 
                 }
@@ -382,11 +383,9 @@ public class QRviaCamera extends Fragment {
         Log.d("Url anaylsisID", "id " + id);
         OkHttpClient client = new OkHttpClient();
 
-        // Replace the API key and URL with your own values
         String apiKey = "ca51b3756aa20f7f99d75d3ffe38c1d43bd9ee1bab90c72ff597ccf6df317c9c";
         String url = "https://www.virustotal.com/api/v3/urls/" + id;
 
-        // Create the GET request and add headers
         Request request = new Request.Builder()
                 .url(url)
                 .get()
@@ -434,7 +433,6 @@ public class QRviaCamera extends Fragment {
                                 } else if (harmless == 0 && malicious == 0) {
                                     showWarningDialog(harmless, malicious, suspicious);
                                     safety = "Belirsiz";
-
                                     isSafe = true;
                                 } else {
                                     showWarningDialog(harmless, malicious, suspicious);

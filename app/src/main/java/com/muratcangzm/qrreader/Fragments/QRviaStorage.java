@@ -4,6 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -108,6 +111,40 @@ public class QRviaStorage extends Fragment {
 
         });
 
+        binding.copy.setOnClickListener(v -> {
+
+            if(rawVal != null){
+
+                ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+
+                ClipData clipData = ClipData.newPlainText("Veri", rawVal);
+                clipboardManager.setPrimaryClip(clipData);
+                Snackbar.make(binding.copy, "Kopyalandı", Snackbar.LENGTH_SHORT).show();
+
+            }
+            else{
+                Toast.makeText(requireContext(), "Tarama düzgün yapılmadı.", Toast.LENGTH_SHORT);
+
+            }
+
+
+        });
+
+        binding.share.setOnClickListener(v -> {
+
+            if(rawVal != null){
+
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_TEXT, rawVal);
+                startActivity(Intent.createChooser(intent,"ile paylaş"));
+            }
+            else{
+                Toast.makeText(requireContext(), "Tarama düzgün yapılmadı.", Toast.LENGTH_SHORT);
+            }
+
+
+        });
 
         return binding.getRoot();
     }
@@ -174,6 +211,7 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "ssid: " + ssid);
                     Log.d("Result: ", "password: " + password);
                     Log.d("Result: ", "encryptionType: " + encryptionType);
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
 
                 }
@@ -194,6 +232,7 @@ public class QRviaStorage extends Fragment {
                     binding.typeTextResult.setText("URL");
                     binding.rawTypeResult.setText(url);
                     binding.saveList.setVisibility(View.VISIBLE);
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
                     Type = "URL";
                     rawVal = url;
@@ -221,6 +260,7 @@ public class QRviaStorage extends Fragment {
 
 
                     binding.saveList.setVisibility(View.INVISIBLE);
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
 
                 }
@@ -245,6 +285,7 @@ public class QRviaStorage extends Fragment {
                     //        "\nİsmi: " + name + "\nTelefon: " + phone + "\nSaf Değeri: " + rawValue);
 
                     binding.saveList.setVisibility(View.INVISIBLE);
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
 
                 }
@@ -262,6 +303,7 @@ public class QRviaStorage extends Fragment {
                     Log.d("Result: ", "Type: geoLat" + geoLat);
                     Log.d("Result: ", "Type: geoLng" + geoLng);
 
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
                 }
 
@@ -271,7 +313,7 @@ public class QRviaStorage extends Fragment {
                     binding.typeTextResult.setText("Ürün değeri");
                     binding.rawTypeResult.setText(rawValue);
                     binding.saveList.setVisibility(View.VISIBLE);
-
+                    binding.additionalLayout.setVisibility(View.VISIBLE);
 
                     Type = "Ürün";
                     rawVal = rawValue;

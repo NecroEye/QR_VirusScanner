@@ -5,4 +5,5 @@
     <string name="barkod_listem">Barkod Listem</string>
     <string name="t_r">Türü:</string>
     <string name="virus_scan">Virüs Taraması</string>
+    <string name="storageTitle">Galeriden Resim Okuyucu</string>
 </resources>

@@ -19,7 +19,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginTop="25dp"
         android:fontFamily="@font/standard"
-        android:text="Galeriden Resim Okuyucu"
+        android:text="@string/storageTitle"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -144,7 +144,7 @@
             <TextView
                 android:id="@+id/rawTypeResult"
                 android:layout_width="match_parent"
-                android:layout_height="130dp"
+                android:layout_height="100dp"
                 android:layout_margin="15dp"
                 android:gravity="center"
                 android:scrollbars="vertical"
@@ -188,6 +188,33 @@
                 android:text="Kaydet"
                 android:textStyle="bold"
                 android:visibility="invisible" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/additionalLayout"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/copy"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:text="Kopyala"
+                android:textStyle="bold"
+                android:layout_marginLeft="75dp"/>
+
+            <Button
+                android:id="@+id/share"
+                android:layout_width="120dp"
+                android:layout_height="50dp"
+                android:text="Paylaş"
+                android:layout_marginLeft="20dp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
