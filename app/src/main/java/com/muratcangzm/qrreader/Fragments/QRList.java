@@ -17,6 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.RecyclerView.Adapter;
 import com.muratcangzm.qrreader.RecyclerView.RecyclerModel;
@@ -35,12 +42,17 @@ public class QRList extends Fragment {
     private static final String PREF_NAME = "barcodeStorage";
     private static final String KEY_PREFIX = "Data_";
     private TextView safetyTextView;
+
     private SharedPreferences sharedPreferences = null;
 
     private QrListBinding binding;
 
     public QRList() {
         //Empty Constructor
+
+        //QRList Banner
+        //ca-app-pub-1436561055108702/7981503859
+
     }
 
     @Nullable
@@ -127,23 +139,29 @@ public class QRList extends Fragment {
 
             case "URL": {
 
-                if(safety != null){
+                barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, safety, time, null));
 
-                    switch (safety) {
+
+                if(QRviaCamera.safety != null){
+
+                    switch (QRviaCamera.safety) {
 
                         case "Güvenli":
+                            Log.d("Girdi:", "günvenli");
 
-                            safetyTextView.setTextColor(getResources().getColor(R.color.lightGreen, requireContext().getTheme()));
+                            safetyTextView.setTextColor(Color.GREEN);
 
                             break;
                         case "Belirsiz":
+                            Log.d("Girdi:", "belirsiz");
 
-                            safetyTextView.setTextColor(getResources().getColor(R.color.colorWarning, requireContext().getTheme()));
+                            safetyTextView.setTextColor(Color.YELLOW);
 
                             break;
                         case "Tehlikeli":
+                            Log.d("Girdi:", "tehlikeli");
 
-                            safetyTextView.setTextColor(getResources().getColor(R.color.lightRed, requireContext().getTheme()));
+                            safetyTextView.setTextColor(Color.RED);
 
                             break;
                         default:
@@ -155,13 +173,12 @@ public class QRList extends Fragment {
                 else{
 
                     safetyTextView.setText("Taranmadı");
-                    safetyTextView.setTextColor(getResources().getColor(R.color.colorWarning, requireContext().getTheme()));
+                    safetyTextView.setTextColor(Color.YELLOW);
 
                 }
 
 
 
-                barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, safety, time, null));
 
             }
             break;

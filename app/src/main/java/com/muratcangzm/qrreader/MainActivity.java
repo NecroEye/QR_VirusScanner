@@ -1,11 +1,20 @@
 package com.muratcangzm.qrreader;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.snackbar.Snackbar;
 import com.muratcangzm.qrreader.Fragments.QRList;
 import com.muratcangzm.qrreader.Fragments.QRviaCamera;
@@ -16,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private ActivityMainBinding binding;
+    private InterstitialAd minterstitialAd;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -24,6 +34,48 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         replaceFragment(new QRviaCamera());
+
+
+        // AdsMob ID ca-app-pub-1436561055108702~8789256862
+
+        //Geçişli Test1 ca-app-pub-3940256099942544/8691691433
+        //Banner test ca-app-pub-3940256099942544/6300978111
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {}
+        });
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        minterstitialAd.load(this, "ca-app-pub-1436561055108702/6213126615", adRequest, new InterstitialAdLoadCallback() {
+
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                super.onAdLoaded(interstitialAd);
+
+                minterstitialAd = interstitialAd;
+
+                if(minterstitialAd != null){
+
+                    minterstitialAd.show(MainActivity.this);
+                }
+                else{
+                    Log.d("ads: ", "The interstitial ad wasn't ready yet.");
+                }
+
+
+
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.d("ads: ", loadAdError.toString());
+                minterstitialAd = null;
+
+            }
+        });
 
 
 

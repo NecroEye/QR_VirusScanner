@@ -39,6 +39,13 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -47,7 +54,6 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import com.muratcangzm.qrreader.CaptureAct;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrCameraBinding;
-
 import java.io.IOException;
 import java.util.Calendar;
 import okhttp3.FormBody;
@@ -67,14 +73,22 @@ public class QRviaCamera extends Fragment {
     private QrCameraBinding binding;
     private static boolean isSafe = false;
     public static String safety;
+    private InterstitialAd minterstitialAd;
+
 
     private static boolean checkingUrl;
     private static Uri scannedUrl;
     private static String checkId;
+    private AdRequest adRequest;
     private static View _mainScreen, _loadingScreen;
 
     public QRviaCamera() {
         //Empty Constructor
+
+
+        //CameraAds
+        //ca-app-pub-1436561055108702/2924672196
+
     }
 
     @Nullable
@@ -82,6 +96,15 @@ public class QRviaCamera extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = QrCameraBinding.inflate(getLayoutInflater(), container, false);
 
+
+        MobileAds.initialize(requireContext(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
 
         this.activity = requireActivity();
 
@@ -268,6 +291,38 @@ public class QRviaCamera extends Fragment {
                     dialog.dismiss();
                     checkUrl(result.getContents(), binding.cameraMainScreen, binding.loadingScreen);
                     basicGet();
+
+                    minterstitialAd.load(requireContext(), "ca-app-pub-1436561055108702/7981503859", adRequest, new InterstitialAdLoadCallback() {
+
+                        @Override
+                        public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                            super.onAdLoaded(interstitialAd);
+
+                            minterstitialAd = interstitialAd;
+
+                            if(minterstitialAd != null){
+
+                                minterstitialAd.show(requireActivity());
+                            }
+                            else{
+                                Log.d("ads: ", "The interstitial ad wasn't ready yet.");
+                            }
+
+
+
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            super.onAdFailedToLoad(loadAdError);
+                            Log.d("ads: ", loadAdError.toString());
+                            minterstitialAd = null;
+
+                        }
+                    });
+
+
+
                 }
             });
 
@@ -423,6 +478,7 @@ public class QRviaCamera extends Fragment {
                                     showSafeDialog(harmless, malicious, suspicious);
                                     safety = "Güvenli";
                                     isSafe = true;
+
                                 } else if (malicious > 0) {
                                     showDangerDialog(harmless, malicious, suspicious);
                                     safety = "Tehlikeli";
