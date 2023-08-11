@@ -52,7 +52,7 @@
             android:textColor="#528B8B"
             android:textStyle="italic"
             android:gravity="center"
-            android:textSize="19sp"
+            android:textSize="17sp"
             android:layout_toRightOf="@id/typeOfBarcodeName"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="5dp"/>

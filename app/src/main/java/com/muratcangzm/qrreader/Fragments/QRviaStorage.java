@@ -9,10 +9,13 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -149,9 +152,6 @@ public class QRviaStorage extends Fragment {
                     else{
                         Log.d("ads: ", "The interstitial ad wasn't ready yet.");
                     }
-
-
-
                 }
 
                 @Override
@@ -412,30 +412,44 @@ public class QRviaStorage extends Fragment {
                 }
             });
 
-    private ActivityResultLauncher<String> StoragePermissionRequest = registerForActivityResult(
+    private final ActivityResultLauncher<String> StoragePermissionRequest = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), isGranted -> {
 
                 if (isGranted) {
                     //Storage izni alındı
-
                     pickImageGallery();
 
                 } else {
                     //Storage izni verilmedi
+
+                    try{
+
+                        Snackbar.make(binding.pickQRfromGallery, "İzin Gerekli", Snackbar.LENGTH_INDEFINITE)
+                                .setAction("İzinleri Yönet", v -> {
+
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", requireActivity().getPackageName(), null);
+                                    intent.setData(uri);
+                                    requireActivity().startActivity(intent);
+
+                                }).setBackgroundTint(Color.BLUE).show();
+
+                    }
+                    catch (NullPointerException e){
+                        e.getStackTrace();
+                        Log.d("Hata: " , "" + e.getMessage());
+                    }
+
 
                 }
 
             });
 
     private void requestStoragePermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-            showExplanationDialog();
-
-        } else {
-            pickImageGallery();
             StoragePermissionRequest.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
+
     }
 
     private boolean checkSelfPermission() {
@@ -443,26 +457,6 @@ public class QRviaStorage extends Fragment {
         return ContextCompat.
                 checkSelfPermission(requireContext(),
                         Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void showExplanationDialog() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-        builder.setTitle("İzin Gerekli")
-                .setMessage("Bu özelliği kullanmak için storage iznini vermelisiniz.")
-                .setPositiveButton("İzin ver", (dialog, which) -> {
-
-                    requestStoragePermission();
-
-                })
-                .setNegativeButton("İzin verme", (dialog, which) -> {
-
-
-                })
-                .show();
-
-
     }
 
     private void pickImageGallery() {

@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Gravity;
@@ -130,7 +131,7 @@ public class QRviaCamera extends Fragment {
     }
 
 
-    private ActivityResultLauncher<String> cameraRequestLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<String>cameraRequestLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), isGranted -> {
 
                 if (isGranted) {
@@ -138,19 +139,33 @@ public class QRviaCamera extends Fragment {
                     Scanner();
                 } else {
                     //Camera izni verilmedi
-                    Toast.makeText(getContext(), "izin verilmedi", Toast.LENGTH_SHORT).show();
+                    try {
+
+                        Snackbar.make(binding.scanQR, "İzin Gerekli", Snackbar.LENGTH_INDEFINITE)
+                                .setAction("İzinleri Yönet", v -> {
+
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", requireActivity().getPackageName(), null);
+                                    intent.setData(uri);
+                                    requireActivity().startActivity(intent);
+
+                                }).setBackgroundTint(Color.BLUE).show();
+
+                    }
+                    catch (NullPointerException e){
+                        e.printStackTrace();
+                        Log.d("Hata", ""+ e.getMessage());
+
+                    }
                 }
 
             });
 
     private void requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
-            showExplanationDialog();
+        cameraRequestLauncher.launch(Manifest.permission.CAMERA);
 
-        } else {
-            cameraRequestLauncher.launch(Manifest.permission.CAMERA);
-        }
     }
 
     private boolean checkSelfPermission() {
@@ -161,25 +176,6 @@ public class QRviaCamera extends Fragment {
     }
 
 
-    private void showExplanationDialog() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-        builder.setTitle("İzin Gerekli")
-                .setMessage("Bu özelliği kullanmak için kamera iznini vermelisiniz.")
-                .setPositiveButton("İzin ver", (dialog, which) -> {
-
-                    requestCameraPermission();
-
-                })
-                .setNegativeButton("İzin verme", (dialog, which) -> {
-
-
-                })
-                .show();
-
-
-    }
 
     private void Scanner() {
 

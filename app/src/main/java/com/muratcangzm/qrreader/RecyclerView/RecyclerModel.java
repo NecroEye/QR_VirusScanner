@@ -1,5 +1,7 @@
 package com.muratcangzm.qrreader.RecyclerView;
 
+import androidx.annotation.Nullable;
+
 public class RecyclerModel {
 
 
@@ -8,7 +10,7 @@ public class RecyclerModel {
     private String divider;
 
 
-    public RecyclerModel(int imageView, String type, String rawValue, String safety, String time, String divider) {
+    public RecyclerModel(int imageView, String type, String rawValue, String safety, String time, @Nullable String divider) {
         this.imageView = imageView;
         this.type = type;
         this.rawValue = rawValue;

@@ -16,12 +16,14 @@ import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements View.OnClickListener {
 
-    private List<RecyclerModel> barcodeList;
+    private final List<RecyclerModel> barcodeList;
     private AdapterView.OnItemClickListener clickListener;
+    private final RecyclerViewEventListener eventListener;
 
-    public Adapter(List<RecyclerModel> barcodeList){
+    public Adapter(List<RecyclerModel> barcodeList, RecyclerViewEventListener recyclerViewEventListener) {
 
         this.barcodeList = barcodeList;
+        this.eventListener = recyclerViewEventListener;
 
     }
 
@@ -30,7 +32,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
     @Override
     public Adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_design, parent ,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_design, parent, false);
         return new ViewHolder(view);
     }
 
@@ -44,11 +46,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
         String time = barcodeList.get(position).getTime();
         String divider = barcodeList.get(position).getDivider();
 
+
         holder.setData(resource, type, safety, rawValue, time, divider);
 
     }
-
-
 
 
     @Override
@@ -60,10 +61,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
     public void onClick(View v) {
 
 
-
     }
 
-    public interface onItemClickListener{
+    public interface onItemClickListener {
         void onItemClick(int position);
     }
 
@@ -88,6 +88,38 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> implements
             timeText = itemView.findViewById(R.id.saveTimeText);
             dividerView = itemView.findViewById(R.id.dividerView);
 
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (eventListener != null) {
+                        int position = getAdapterPosition();
+
+                        if (position != RecyclerView.NO_POSITION) {
+
+                            eventListener.onClickListener(position);
+
+                        }
+                    }
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    if (eventListener != null) {
+                        int position = getAdapterPosition();
+
+                        if (position != RecyclerView.NO_POSITION) {
+
+                            eventListener.onLongClickListener(position);
+
+                        }
+                    }
+
+                    return true;
+                }
+            });
 
         }
 
