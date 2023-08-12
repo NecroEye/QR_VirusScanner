@@ -126,11 +126,7 @@ public class QRviaStorage extends Fragment {
                 pickImageGallery();
             }
 
-
-
-
         });
-
 
         binding.Scan.setOnClickListener(v -> {
 

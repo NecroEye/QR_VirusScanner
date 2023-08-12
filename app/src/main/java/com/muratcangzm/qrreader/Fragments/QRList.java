@@ -36,7 +36,7 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     private static final String KEY_PREFIX = "Data_";
     private TextView safetyTextView, safetyRealText;
 
-    private SharedPreferences sharedPreferences = null;
+    private SharedPreferences sharedPreferences;
 
     private QrListBinding binding;
 
@@ -139,39 +139,6 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
                 barcodeModel.add(new RecyclerModel(R.drawable.link, type, raw, safety, time, null));
 
-
-                if(QRviaCamera.safety != null){
-
-                    switch (QRviaCamera.safety) {
-
-                        case "Güvenli":
-
-                            safetyRealText.setTextColor(Color.GREEN);
-
-                            break;
-                        case "Belirsiz":
-
-                            safetyRealText.setTextColor(Color.YELLOW);
-                            break;
-                        case "Tehlikeli":
-
-                            safetyRealText.setTextColor(Color.RED);
-
-
-                            break;
-                        default:
-
-                            break;
-                    }
-
-                }
-                else{
-
-                    safetyTextView.setText("Taranmadı");
-                    safetyTextView.setTextColor(Color.YELLOW);
-
-                }
-
             }
             break;
 
@@ -217,14 +184,41 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     @Override
     public void onClickListener(int position) {
 
-       // Toast.makeText(requireContext(), "Tıklandı: " + position, Toast.LENGTH_SHORT).show();
+      //Toast.makeText(requireContext(), "Tıklandı: " + position, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onLongClickListener(int position) {
-        barcodeModel.remove(position);
-        adapter.notifyItemRemoved(position);
-        Toast.makeText(requireContext(), "Kaldırıldı.", Toast.LENGTH_SHORT).show();
+
+        if (position >= 0 && position < barcodeModel.size()) {
+            barcodeModel.remove(position);
+            adapter.notifyItemRemoved(position);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            // Clear all previous data
+            editor.clear();
+
+            // Re-add all items from barcodeModel to SharedPreferences
+            for (int i = 0; i < barcodeModel.size(); i++) {
+                RecyclerModel model = barcodeModel.get(i);
+                String type = model.getType();
+                String raw = model.getRawValue();
+                String time = model.getTime();
+                String safety = model.getSafety();
+
+                editor.putString(KEY_PREFIX + (i + 1) + "_Type", type);
+                editor.putString(KEY_PREFIX + (i + 1) + "_Raw", raw);
+                editor.putString(KEY_PREFIX + (i + 1) + "_Time", time);
+                editor.putString(KEY_PREFIX + (i + 1) + "_Safety", safety);
+            }
+
+            // Update the item count and apply changes
+            editor.putInt("itemCount", barcodeModel.size());
+            editor.apply();
+
+            Toast.makeText(requireContext(), "Kaldırıldı.", Toast.LENGTH_SHORT).show();
+        }
 
     }
 }
