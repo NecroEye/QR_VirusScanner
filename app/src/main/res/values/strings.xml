@@ -6,4 +6,14 @@
     <string name="t_r">Türü:</string>
     <string name="virus_scan">Virüs Taraması</string>
     <string name="storageTitle">Galeriden Resim Okuyucu</string>
+    <string name="manueladding">ManuelAdding</string>
+
+    <string-array name="spinner_array">
+
+        <item>Url</item>
+        <item>Ürün</item>
+
+    </string-array>
+
+
 </resources>

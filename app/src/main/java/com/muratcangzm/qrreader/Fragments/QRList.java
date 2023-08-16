@@ -1,13 +1,21 @@
 package com.muratcangzm.qrreader.Fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.RecyclerView.Adapter;
 import com.muratcangzm.qrreader.RecyclerView.RecyclerModel;
@@ -30,6 +39,9 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
     private LinearLayoutManager manager;
     private List<RecyclerModel> barcodeModel;
+    private EditText popupEditText;
+    private Button popupButton;
+    private Spinner popupSpinner;
     private Adapter adapter;
     private View itemView;
     private static final String PREF_NAME = "barcodeStorage";
@@ -61,7 +73,6 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_design,
                 requireActivity().findViewById(R.id.itemContainer));
-
 
 
         safetyTextView = itemView.findViewById(R.id.safetyStatusText);
@@ -124,8 +135,19 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         binding.recyclerView.setLongClickable(true);
 
+
         safetyRealText = view.findViewById(R.id.safetyStatusText);
 
+
+        binding.floatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                createPopUpWindow();
+
+
+            }
+        });
 
     }
 
@@ -184,7 +206,7 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     @Override
     public void onClickListener(int position) {
 
-      //Toast.makeText(requireContext(), "Tıklandı: " + position, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(requireContext(), "Tıklandı: " + position, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -221,4 +243,66 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
         }
 
     }
+
+
+    private void createPopUpWindow() {
+
+
+        LayoutInflater layoutInflater = (LayoutInflater) requireActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popUpView = layoutInflater.inflate(R.layout.popuplayout, null);
+
+        popupEditText = (EditText) popUpView.findViewById(R.id.editText_popup);
+        popupSpinner = (Spinner) popUpView.findViewById(R.id.spinner);
+        popupButton = (Button) popUpView.findViewById(R.id.saveManually);
+
+        int width = ViewGroup.LayoutParams.MATCH_PARENT;
+        int height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        boolean focusable = true;
+
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(requireActivity(),
+                R.array.spinner_array,
+                android.R.layout.simple_spinner_item);
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        popupSpinner.setAdapter(spinnerAdapter);
+
+
+        PopupWindow popupWindow = new PopupWindow(popUpView, width, height, focusable);
+
+        popupWindow.showAtLocation(binding.qrListFrame, Gravity.CENTER, 0, 0);
+
+
+        binding.qrListFrame.post(() -> {
+
+
+            popupSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                    popupButton.setOnClickListener(v -> {
+
+                        popupWindow.dismiss();
+
+                    });
+
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                    popupButton.setOnClickListener(v -> {
+
+                        popupWindow.dismiss();
+
+                    });
+
+                }
+            });
+
+
+        });
+
+
+    }
+
 }

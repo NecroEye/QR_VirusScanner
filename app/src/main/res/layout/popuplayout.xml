@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/popup_container"
+    android:background="#FFFFFF">
+
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="330dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:orientation="vertical"
+        android:background="@drawable/popupbg">
+
+
+
+
+
+        <TextView
+            android:id="@+id/popup_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="90dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="100dp"
+            android:gravity="center"
+            android:text="Elle Veri Kaydetme"
+            android:textColor="@color/black"
+            android:textSize="27sp"
+            android:textStyle="bold" />
+
+
+        <EditText
+            android:id="@+id/editText_popup"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/edittext_bg"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="50dp"
+            android:paddingStart="25dp"
+            android:hint="Link Adresi veya ürün kodu"
+            android:inputType="none"
+            android:maxLines="55" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:visibility="visible"
+            android:layout_marginStart="200dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="70dp" />
+
+        <Button
+            android:id="@+id/saveManually"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="230dp"
+            android:layout_marginTop="35dp"
+            android:text="Kaydet"
+            android:textStyle="bold" />
+
+
+
+
+
+    </LinearLayout>
+</RelativeLayout>
