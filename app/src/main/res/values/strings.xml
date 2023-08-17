@@ -7,9 +7,11 @@
     <string name="virus_scan">Virüs Taraması</string>
     <string name="storageTitle">Galeriden Resim Okuyucu</string>
     <string name="manueladding">ManuelAdding</string>
+    <string name="popupSave">Kaydet</string>
 
     <string-array name="spinner_array">
 
+        <item>Seçiniz</item>
         <item>Url</item>
         <item>Ürün</item>
 

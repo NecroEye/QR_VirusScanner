@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/popup_container"
-    android:background="#FFFFFF">
+    android:background="@null">
 
     
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="330dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
         android:orientation="vertical"
         android:background="@drawable/popupbg">
 
@@ -45,23 +45,31 @@
             android:inputType="none"
             android:maxLines="55" />
 
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:visibility="visible"
-            android:layout_marginStart="200dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="70dp" />
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/saveManually"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="230dp"
-            android:layout_marginTop="35dp"
-            android:text="Kaydet"
-            android:textStyle="bold" />
+           <Spinner
+               android:background="@drawable/spinner_style"
+               android:id="@+id/spinner"
+               android:layout_width="100dp"
+               android:layout_height="60dp"
+               android:visibility="visible"
+               android:layout_marginStart="40dp"
+               android:textStyle="bold"
+               android:layout_marginTop="15dp"
+               android:layout_marginEnd="70dp" />
+
+           <Button
+               android:id="@+id/saveManually"
+               android:layout_width="100dp"
+               android:layout_height="50dp"
+               android:layout_marginTop="15dp"
+               android:text="@string/popupSave"
+               android:textStyle="bold" />
+
+       </LinearLayout>
 
 
 

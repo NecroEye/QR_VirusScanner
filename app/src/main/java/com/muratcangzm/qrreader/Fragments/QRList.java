@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.RecyclerView.Adapter;
 import com.muratcangzm.qrreader.RecyclerView.RecyclerModel;
@@ -32,6 +33,7 @@ import com.muratcangzm.qrreader.RecyclerView.RecyclerViewEventListener;
 import com.muratcangzm.qrreader.databinding.QrListBinding;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class QRList extends Fragment implements RecyclerViewEventListener {
@@ -67,7 +69,6 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         sharedPreferences = getActivity().getSharedPreferences(PREF_NAME, getContext().MODE_PRIVATE);
         barcodeModel = new ArrayList<>();
-
 
         // Retrieve the number of items stored previously (if any)
 
@@ -261,7 +262,7 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(requireActivity(),
                 R.array.spinner_array,
-                android.R.layout.simple_spinner_item);
+                R.layout.spinner_text_layout);
 
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -275,18 +276,65 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         binding.qrListFrame.post(() -> {
 
-
             popupSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                    popupButton.setOnClickListener(v -> {
+                    switch (position) {
 
-                        popupWindow.dismiss();
+                        case 0: {
 
-                    });
+                            popupButton.setOnClickListener(v -> {
+
+                                Snackbar.make(popupSpinner, "Türünü Seçmediniz", Snackbar.LENGTH_SHORT).show();
+
+                            });
+                        }
+
+                        break;
+                        case 1: {
+                            popupButton.setOnClickListener(v -> {
+
+                                if (popupEditText.getText().length() > 0) {
+                                    saveData("URL", popupEditText.getText().toString(), getTime(), "");
+
+                                    popupWindow.dismiss();
+                                    Toast.makeText(requireContext(), "Başarılı bir şekilde eklendi.", Toast.LENGTH_SHORT).show();
+
+                                } else {
+
+                                    Snackbar.make(popupSpinner, "Boş bırakamazsınız", Snackbar.LENGTH_SHORT).show();
+
+                                }
+                            });
+                        }
+                        break;
+                        case 2: {
+
+                            popupButton.setOnClickListener(v -> {
+
+                                if (popupEditText.getText().length() > 0) {
+                                    saveData("Ürün", popupEditText.getText().toString(), getTime(), "");
+
+                                    popupWindow.dismiss();
+                                    Toast.makeText(requireContext(), "Başarılı bir şekilde eklendi.", Toast.LENGTH_SHORT).show();
+
+                                } else {
+                                    Snackbar.make(popupSpinner, "Boş bırakamazsınız", Snackbar.LENGTH_SHORT).show();
+                                }
+
+                            });
+                        }
+                        break;
+                        default: {
+                            popupWindow.dismiss();
+                        }
+
+                    }
+
 
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
 
@@ -303,6 +351,22 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
         });
 
 
+    }
+
+    private String getTime() {
+
+        Calendar calendar = Calendar.getInstance();
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int year = calendar.get(Calendar.YEAR);
+
+        String currentTimeString = String.format("%02d:%02d", hour, minute);
+
+        return currentTimeString + " " + day + "/" + month + "/" + year;
     }
 
 }
