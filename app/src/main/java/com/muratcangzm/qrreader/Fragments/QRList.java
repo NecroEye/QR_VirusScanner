@@ -42,6 +42,7 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     private LinearLayoutManager manager;
     private List<RecyclerModel> barcodeModel;
     private EditText popupEditText;
+    private Fragment fragment;
     private Button popupButton;
     private Spinner popupSpinner;
     private Adapter adapter;
@@ -136,6 +137,7 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
         binding.recyclerView.setLongClickable(true);
 
+        fragment = new QRviaCamera();
 
         safetyRealText = view.findViewById(R.id.safetyStatusText);
 
@@ -299,6 +301,9 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
                                     saveData("URL", popupEditText.getText().toString(), getTime(), "");
 
                                     popupWindow.dismiss();
+                                    requireActivity().getSupportFragmentManager()
+                                                    .beginTransaction().replace(R.id.Fragment_container, fragment, null)
+                                                    .commit();
                                     Toast.makeText(requireContext(), "Başarılı bir şekilde eklendi.", Toast.LENGTH_SHORT).show();
 
                                 } else {
@@ -317,6 +322,9 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
                                     saveData("Ürün", popupEditText.getText().toString(), getTime(), "");
 
                                     popupWindow.dismiss();
+                                    requireActivity().getSupportFragmentManager()
+                                            .beginTransaction().replace(R.id.Fragment_container, fragment, null)
+                                            .commit();
                                     Toast.makeText(requireContext(), "Başarılı bir şekilde eklendi.", Toast.LENGTH_SHORT).show();
 
                                 } else {
