@@ -2,6 +2,7 @@ package com.muratcangzm.qrreader.Fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -215,35 +217,55 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     @Override
     public void onLongClickListener(int position) {
 
-        if (position >= 0 && position < barcodeModel.size()) {
-            barcodeModel.remove(position);
-            adapter.notifyItemRemoved(position);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
+                .setTitle("Silme işlemi")
+                .setMessage("Kaldırmak istediğinize emin misiniz?")
+                .setCancelable(true)
+                .setPositiveButton("Evet", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
+                        if (position >= 0 && position < barcodeModel.size()) {
+                            barcodeModel.remove(position);
+                            adapter.notifyItemRemoved(position);
 
-            // Clear all previous data
-            editor.clear();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
 
-            // Re-add all items from barcodeModel to SharedPreferences
-            for (int i = 0; i < barcodeModel.size(); i++) {
-                RecyclerModel model = barcodeModel.get(i);
-                String type = model.getType();
-                String raw = model.getRawValue();
-                String time = model.getTime();
-                String safety = model.getSafety();
+                            // Clear all previous data
+                            editor.clear();
 
-                editor.putString(KEY_PREFIX + (i + 1) + "_Type", type);
-                editor.putString(KEY_PREFIX + (i + 1) + "_Raw", raw);
-                editor.putString(KEY_PREFIX + (i + 1) + "_Time", time);
-                editor.putString(KEY_PREFIX + (i + 1) + "_Safety", safety);
-            }
+                            // Re-add all items from barcodeModel to SharedPreferences
+                            for (int i = 0; i < barcodeModel.size(); i++) {
+                                RecyclerModel model = barcodeModel.get(i);
+                                String type = model.getType();
+                                String raw = model.getRawValue();
+                                String time = model.getTime();
+                                String safety = model.getSafety();
 
-            // Update the item count and apply changes
-            editor.putInt("itemCount", barcodeModel.size());
-            editor.apply();
+                                editor.putString(KEY_PREFIX + (i + 1) + "_Type", type);
+                                editor.putString(KEY_PREFIX + (i + 1) + "_Raw", raw);
+                                editor.putString(KEY_PREFIX + (i + 1) + "_Time", time);
+                                editor.putString(KEY_PREFIX + (i + 1) + "_Safety", safety);
+                            }
 
-            Toast.makeText(requireContext(), "Kaldırıldı.", Toast.LENGTH_SHORT).show();
-        }
+                            // Update the item count and apply changes
+                            editor.putInt("itemCount", barcodeModel.size());
+                            editor.apply();
+
+                            Toast.makeText(requireContext(), "Kaldırıldı.", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    }
+                })
+                .setNegativeButton("Hayır", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                         // do nothing
+                    }
+                });
+          builder.show();
 
     }
 
