@@ -53,10 +53,13 @@ import com.google.gson.JsonParser;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 import com.muratcangzm.qrreader.CaptureAct;
+import com.muratcangzm.qrreader.MainActivity;
 import com.muratcangzm.qrreader.R;
 import com.muratcangzm.qrreader.databinding.QrCameraBinding;
+
 import java.io.IOException;
 import java.util.Calendar;
+
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -72,6 +75,8 @@ public class QRviaCamera extends Fragment {
     private static FragmentActivity activity;
     private String rawVal, Type = null;
     private QrCameraBinding binding;
+    private InterstitialAd minterstitialAd2;
+
     private static boolean isSafe = false;
     public static String safety;
     private InterstitialAd minterstitialAd;
@@ -111,6 +116,36 @@ public class QRviaCamera extends Fragment {
 
         binding.scanQR.setOnClickListener(view -> {
 
+            AdRequest adRequest = new AdRequest.Builder().build();
+
+            minterstitialAd2.load(requireContext(), "ca-app-pub-1436561055108702/6213126615", adRequest, new InterstitialAdLoadCallback() {
+
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                    super.onAdLoaded(interstitialAd);
+
+                    minterstitialAd = interstitialAd;
+
+                    if(minterstitialAd != null){
+
+                        minterstitialAd.show(requireActivity());
+                    }
+                    else{
+                        Log.d("ads: ", "The interstitial ad wasn't ready yet.");
+                    }
+
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    super.onAdFailedToLoad(loadAdError);
+                    Log.d("ads: ", loadAdError.toString());
+                    minterstitialAd = null;
+
+                }
+            });
+
+
 
             if (!checkSelfPermission()) {
                 requestCameraPermission();
@@ -131,7 +166,7 @@ public class QRviaCamera extends Fragment {
     }
 
 
-    private final ActivityResultLauncher<String>cameraRequestLauncher = registerForActivityResult(
+    private final ActivityResultLauncher<String> cameraRequestLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(), isGranted -> {
 
                 if (isGranted) {
@@ -152,10 +187,9 @@ public class QRviaCamera extends Fragment {
 
                                 }).setBackgroundTint(Color.BLUE).show();
 
-                    }
-                    catch (NullPointerException e){
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
-                        Log.d("Hata", ""+ e.getMessage());
+                        Log.d("Hata", "" + e.getMessage());
 
                     }
                 }
@@ -174,7 +208,6 @@ public class QRviaCamera extends Fragment {
                 checkSelfPermission(requireContext(),
                         Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
-
 
 
     private void Scanner() {
@@ -296,14 +329,12 @@ public class QRviaCamera extends Fragment {
 
                             minterstitialAd = interstitialAd;
 
-                            if(minterstitialAd != null){
+                            if (minterstitialAd != null) {
 
                                 minterstitialAd.show(requireActivity());
-                            }
-                            else{
+                            } else {
                                 Log.d("ads: ", "The interstitial ad wasn't ready yet.");
                             }
-
 
 
                         }
@@ -316,7 +347,6 @@ public class QRviaCamera extends Fragment {
 
                         }
                     });
-
 
 
                 }

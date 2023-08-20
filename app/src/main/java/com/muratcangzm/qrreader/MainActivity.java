@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private ActivityMainBinding binding;
-    private InterstitialAd minterstitialAd;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -44,37 +43,6 @@ public class MainActivity extends AppCompatActivity {
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {}
-        });
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-
-        minterstitialAd.load(this, "ca-app-pub-1436561055108702/6213126615", adRequest, new InterstitialAdLoadCallback() {
-
-            @Override
-            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                super.onAdLoaded(interstitialAd);
-
-                minterstitialAd = interstitialAd;
-
-                if(minterstitialAd != null){
-
-                    minterstitialAd.show(MainActivity.this);
-                }
-                else{
-                    Log.d("ads: ", "The interstitial ad wasn't ready yet.");
-                }
-
-
-
-            }
-
-            @Override
-            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                super.onAdFailedToLoad(loadAdError);
-                Log.d("ads: ", loadAdError.toString());
-                minterstitialAd = null;
-
-            }
         });
 
 
