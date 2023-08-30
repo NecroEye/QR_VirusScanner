@@ -1,12 +1,17 @@
 package com.muratcangzm.qrreader.Fragments;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -212,6 +217,38 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
     public void onClickListener(int position) {
 
         //Toast.makeText(requireContext(), "Tıklandı: " + position, Toast.LENGTH_SHORT).show();
+
+        if (barcodeModel.get(position).getType().contains("URL")) {
+
+
+            String formatted = null;
+            Uri web = null;
+            String webURL = barcodeModel.get(position).getRawValue();
+
+            if (!webURL.startsWith("https://")) {
+
+
+                formatted = "https://" + webURL;
+                web = Uri.parse(formatted);
+
+            } else {
+                web = Uri.parse(webURL);
+            }
+
+            Intent goToWeb = new Intent(Intent.ACTION_VIEW, web);
+            requireActivity().startActivity(goToWeb);
+
+
+        } else {
+
+            ClipboardManager clipboardManager = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clipData = ClipData.newPlainText("Veri", barcodeModel.get(position).getRawValue());
+            clipboardManager.setPrimaryClip(clipData);
+            Snackbar.make(binding.recyclerView, "Kopyalandı", Snackbar.LENGTH_SHORT).show();
+
+        }
+
+
     }
 
     @Override
@@ -262,10 +299,10 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                         // do nothing
+                        // do nothing
                     }
                 });
-          builder.show();
+        builder.show();
 
     }
 
@@ -324,8 +361,8 @@ public class QRList extends Fragment implements RecyclerViewEventListener {
 
                                     popupWindow.dismiss();
                                     requireActivity().getSupportFragmentManager()
-                                                    .beginTransaction().replace(R.id.Fragment_container, fragment, null)
-                                                    .commit();
+                                            .beginTransaction().replace(R.id.Fragment_container, fragment, null)
+                                            .commit();
                                     Toast.makeText(requireContext(), "Başarılı bir şekilde eklendi.", Toast.LENGTH_SHORT).show();
 
                                 } else {
